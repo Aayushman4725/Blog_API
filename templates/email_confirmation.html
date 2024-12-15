@@ -1,0 +1,4 @@
+{% autoescape off %} Welcome to the Blog App!! Hello {{ name }}!! Thank you for
+registering your account. Please click the link below to activate your account.
+Confirmation Link: http://{{ domain }}{% url 'activate' uidb64=uid token=token%}
+{% endautoescape %}

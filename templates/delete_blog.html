@@ -1,0 +1,18 @@
+{% extends 'main.html' %} {% block content %}
+<div class="border">
+  <div class="container mt-3">
+    <form method="post" action="{% url 'delete_blog' blog.id %}">
+      {% csrf_token %}
+      <p>Are you sure you want to delete this blog? Title: {{blog.title}}</p>
+      <input class="btn btn-danger" type="submit" value="Delete" />
+      <a
+        href="{% url 'blog'  %}"
+        class="btn btn-light btn-outline-primary w-25 btn-sm"
+      >
+        Go back
+      </a>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

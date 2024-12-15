@@ -1,0 +1,10 @@
+<div class="d-flex gap-2 like-counter" id="like-counter-{{b.pk}}">
+  <a
+    class="btn btn-primary cursor-pointer"
+    hx-get="{% url 'like' b.pk %}"
+    hx-target="#like-counter-{{ b.pk }}"
+    hx-swap="outerHTML"
+    ><i class="fa fa-thumbs-up"></i
+  ></a>
+  <span>{{ b.likes_count }}</span>
+</div>
