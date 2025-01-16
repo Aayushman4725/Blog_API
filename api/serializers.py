@@ -1,10 +1,8 @@
-from rest_framework import serializers, viewsets, permissions, status
-from rest_framework.response import Response
-from rest_framework.decorators import action
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import serializers
 from authenticate.models import CustomUser, Comment, Profile
+from blog.models import Blog, Like
 
-# Serializers
+# Serializers for authenticate models API
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
@@ -23,8 +21,21 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['id', 'user', 'blog', 'comment_text', 'created_at', 'is_negative', 'needs_review']
-        
+
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['id', 'user', 'profile_picture', 'phone_number', 'about']
+
+# Serializers for blog models API
+class BlogSerializer(serializers.ModelSerializer):
+    likes_count = serializers.IntegerField(source='likes_count', read_only=True)
+
+    class Meta:
+        model = Blog
+        fields = ['id', 'user', 'title', 'blog', 'summarized_blog', 'created_at', 'updated_at', 'likes', 'translated_blog', 'likes_count']
+
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = ['id', 'user', 'blog', 'liked_at']
