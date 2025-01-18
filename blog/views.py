@@ -32,6 +32,14 @@ def blog_detail(request, pk):
 # Create a comment API view
 class CommentAPIView(APIView):
 
+    def get(self,request):
+        comment = Comment.objects.all()
+        serializer = CommentSerializer(comment, many=True)
+        
+       
+        return Response(serializer.data)
+       
+    
     def post(self, request, pk, *args, **kwargs):
         # Fetch the blog using the primary key (pk)
         blog = get_object_or_404(Blog, pk=pk)
@@ -51,6 +59,15 @@ class CommentAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class AdminCommentReviewView(generics.ListAPIView):
+    queryset = Comment.objects.filter(needs_review=True)
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAdminUser]  # Ensures only admin users can access this view
+
+    def get_queryset(self):
+        return Comment.objects.filter(needs_review=True)
     
 class ApproveCommentAPIView(APIView):
     
