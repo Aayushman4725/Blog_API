@@ -14,7 +14,7 @@ class BlogSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['comment_text', 'is_negative']
+        fields = ['id','comment_text', 'is_negative', 'needs_review']
         read_only_fields = [ 'user', 'blog', 'needs_review']
 
     def create(self, validated_data):
@@ -30,6 +30,8 @@ class CommentSerializer(serializers.ModelSerializer):
         # Now that the necessary fields are set, we create the comment instance
         comment = Comment.objects.create(**validated_data)
         return comment
+    
+
     
 # Profile serializer
 class ProfileSerializer(serializers.ModelSerializer):
