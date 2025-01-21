@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    container_name: blog
+    volumes:
+      - .:/blog
+    ports:
+      - "8000:8000"
+    environment:
+      - TOKENIZERS_PARALLELISM=false
