@@ -91,11 +91,18 @@ class LoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data
             login(request, user)
+
+            # Debugging
+            print(f"User: {user}, is_staff: {user.is_staff}")
+
             token = get_tokens_for_user(user)
             Profile.objects.get_or_create(user=user)
-            return Response({'token':token,"detail": "Logged in successfully."}, status=status.HTTP_200_OK)
+            return Response({
+                'token': token,
+                'is_admin': user.is_staff,  # Include whether the user is an admin
+                'detail': "Logged in successfully."
+            }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class ActivateView(APIView):
     permission_classes = [AllowAny]
