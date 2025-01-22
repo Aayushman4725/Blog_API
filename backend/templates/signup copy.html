@@ -1,0 +1,60 @@
+{% extends 'main.html' %} {% block content %}
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-4">
+        <div class="card mt-5">
+          <div class="card-body">
+            {% if validlink %}
+            <h3 class="card-title text-center">Sign Up</h3>
+            <form method="POST">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input
+                  type="password"
+                  name="new_password1"
+                  class="form-control"
+                  id="password"
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="confirm-password" class="form-label"
+                  >Confirm Password</label
+                >
+                <input
+                  type="password"
+                  name="new_password2"
+                  class="form-control"
+                  id="confirm-password"
+                  placeholder="Confirm your password"
+                  required
+                />
+              </div>
+              <button type="submit" class="btn btn-primary w-100">
+                Submit
+              </button>
+            </form>
+            <p class="text-center mt-3">
+              <a href="{% url 'sign_in' %}">Already have an account? Log in</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="alert alert-warning">
+    The password reset link was invalid, possibly because it has already been
+    used. Please request a new password reset.
+  </div>
+  {% endif %}
+
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js"></script>
+</body>
+{% endblock %}
