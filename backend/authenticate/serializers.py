@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model, authenticate
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.password_validation import validate_password
 from .tokens import generate_token
+from .models import Profile
 
 User = get_user_model()
 
@@ -63,3 +64,11 @@ class ActivateSerializer(serializers.Serializer):
         user.save()
         return user
 
+
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Profile
+        fields = ['profile_picture', 'phone_number','about']
+    
+    
