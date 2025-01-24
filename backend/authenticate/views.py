@@ -8,7 +8,7 @@ from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-from .serializers import SignupSerializer, LoginSerializer, ActivateSerializer
+from .serializers import SignupSerializer, LoginSerializer, ActivateSerializer,ProfileUpdateSerializer
 from .tokens import generate_token
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
@@ -22,6 +22,8 @@ import logging
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+
 
 logger = logging.getLogger(__name__)
 
@@ -132,10 +134,11 @@ class LogoutView(APIView):
         logout(request)
         return Response({"detail": "Logged out successfully."}, status=status.HTTP_200_OK)
 
-@method_decorator(csrf_exempt, name='dispatch')
+
 class PasswordResetView(APIView):
     permission_classes = [AllowAny]
 
+    @csrf_exempt
     def post(self, request):
         logger.info("Password reset post method triggered.")  # Log statement
 
@@ -147,14 +150,46 @@ class PasswordResetView(APIView):
         if not user:
             return Response({"detail": "User with this email does not exist."}, status=status.HTTP_404_NOT_FOUND)
 
+        # Generate reset token and UID
+        uid = urlsafe_base64_encode(str(user.pk).encode())
+        token = default_token_generator.make_token(user)
+
         # Send reset password email
         current_site = get_current_site(request)
         email_subject = "Reset Your Password"
         message = render_to_string('password_reset_email.html', {
             'domain': current_site.domain,
-            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            'token': generate_token.make_token(user)
+            'link': f"http://{current_site.domain}{reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})}",
         })
         email = EmailMessage(email_subject, message, settings.EMAIL_HOST_USER, [user.email])
         email.send(fail_silently=True)
         return Response({"detail": "Password reset link sent to your email."}, status=status.HTTP_200_OK)
+
+class ProfileUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        try:
+            profile = Profile.objects.get(user = request.user)
+            serializer = ProfileUpdateSerializer(profile)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except Profile.DoesNotExist:
+            return Response({'error': 'Profile does not exist'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def put(self, request):
+        try:
+            profile = Profile.objects.get(user = request.user)
+            serializer = ProfileUpdateSerializer(profile, data = request.data, partial = True)
+            
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializers.error, status = status.HTTP_400_BAD_REQUEST)
+        
+        except Profile.DoesNotExist:
+            return Response({'error': 'Profile does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            
+            
+            
+    
