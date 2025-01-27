@@ -14,7 +14,7 @@ urlpatterns = [
     path('approve_comment/<int:pk>/', ApproveCommentAPIView.as_view(), name='approve_comment'),
     path('delete_comment/<int:pk>/', DeleteCommentAPIView.as_view(), name='delete_comment'),
     path('admin/review-comments/', AdminCommentReviewView.as_view(), name='admin_review_comments_api'),
-    path('blogs/comments/', CommentAPIView.as_view(), name='comment'),
+    path('blogs/<int:pk>/comments/', CommentAPIView.as_view(), name='comment'),
 
     
 ]
