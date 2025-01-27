@@ -12,10 +12,13 @@ class BlogSerializer(serializers.ModelSerializer):
 
 # Comment serializer
 class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)  # Display the user's name
+
+    
     class Meta:
         model = Comment
-        fields = ['id','comment_text', 'is_negative', 'needs_review']
-        read_only_fields = [ 'user', 'blog', 'needs_review']
+        fields = ['id','comment_text','user', 'is_negative', 'needs_review']
+        read_only_fields = ['blog', 'needs_review']
 
     def create(self, validated_data):
         # Perform sentiment analysis on the comment text
