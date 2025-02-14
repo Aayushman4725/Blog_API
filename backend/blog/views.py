@@ -107,15 +107,23 @@ class DeleteCommentAPIView(APIView):
 @permission_classes([IsAuthenticated])
 def like_blog(request, pk):
     blog = get_object_or_404(Blog, pk=pk)
-    if request.method == 'POST':
-        if not Like.objects.filter(user=request.user, blog=blog).exists():
-            Like.objects.create(user=request.user, blog=blog)
-            return Response({'status': 'Liked'}, status=status.HTTP_201_CREATED)
-        else:
-            like = Like.objects.filter(user=request.user, blog=blog).first()
-            like.delete()
-            return Response({'status': 'Unliked'}, status=status.HTTP_200_OK)
-        
+
+    # Check if the user has already liked the blog
+    if not Like.objects.filter(user=request.user, blog=blog).exists():
+        # Create the like object
+        Like.objects.create(user=request.user, blog=blog)
+        # Increment the likes count in the blog model
+        blog.likes += 1
+        blog.save()  # Save the updated blog with the incremented like count
+        return Response({'status': 'Liked', 'likes': blog.likes}, status=status.HTTP_201_CREATED)
+    else:
+        # If the user has already liked the blog, remove the like
+        like = Like.objects.filter(user=request.user, blog=blog).first()
+        like.delete()
+        # Decrement the likes count in the blog model
+        blog.likes -= 1
+        blog.save()  # Save the updated blog with the decremented like count
+        return Response({'status': 'Unliked', 'likes': blog.likes}, status=status.HTTP_200_OK)
 
 # Profile update API view
 @api_view(['PUT'])
