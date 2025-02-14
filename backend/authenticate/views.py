@@ -23,7 +23,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-
+from django.http import HttpResponseRedirect
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +123,9 @@ class ActivateView(APIView):
 
             user.is_active = True
             user.save()
-            return Response({"detail": "Account activated successfully."}, status=status.HTTP_200_OK)
+             # Redirect to the React dashboard page after successful activation
+            dashboard_url = "http://localhost:5173/home"  # Replace with your actual React app URL
+            return HttpResponseRedirect(dashboard_url)
         
         logger.warning(f"Token validation failed for user {user.username if user else 'unknown'}.")
         return Response({"detail": "Invalid activation link."}, status=status.HTTP_400_BAD_REQUEST)
