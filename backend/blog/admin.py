@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Blog
+from .models import Blog,Like
+
 # Register your models here.
 admin.site.register(Blog)
 
@@ -22,3 +23,6 @@ class CommentAdmin(admin.ModelAdmin):
         queryset.delete()
         self.message_user(request, "Selected comments have been deleted.")
     delete_comments.short_description = "Delete selected comments"
+
+
+admin.site.register(Like)
