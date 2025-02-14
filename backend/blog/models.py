@@ -28,3 +28,5 @@ class Like(models.Model):
     class Meta:
         unique_together = ('user', 'blog')
 
+    def __str__(self):
+        return self.blog.title
