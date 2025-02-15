@@ -3,6 +3,7 @@ from .views import *
 
 urlpatterns = [
     path('blog_list/', blog_list, name='blog_list'),
+    path('blog_list_user/user/', blog_list_user, name='blog_list_user'),
     path('blogs/<int:pk>/', blog_detail, name='blog_detail'),
     path('blogs/<int:pk>/comments/', CommentAPIView.as_view(), name='create_comment'),
     path('blogs/<int:pk>/like/', like_blog, name='like_blog'),

@@ -22,6 +22,16 @@ def blog_list(request):
         serializer = BlogSerializer(blogs, many=True)
         return Response(serializer.data)
     
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])  
+def blog_list_user(request):
+    print(f"Authenticated User: {request.user}")  # Debugging line
+    blogs = Blog.objects.filter(user=request.user)
+    print(f"Blogs Returned: {blogs}")  # Debugging line
+    serializer = BlogSerializer(blogs, many=True)
+    return Response(serializer.data)
+
+    
 
 # Blog detail API view
 @api_view(['GET'])
