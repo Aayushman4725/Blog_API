@@ -67,10 +67,11 @@ class ActivateSerializer(serializers.Serializer):
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username')  # Include user fields like username
+    userId = serializers.CharField(source='user.id')  # Include user fields like username
     email = serializers.CharField(source='user.email')  # Include email from the user model
     is_admin = serializers.BooleanField(source='user.is_staff')
     class Meta:
         model = Profile
-        fields = ['profile_picture', 'phone_number', 'about', 'user', 'email','is_admin']
+        fields = ['profile_picture', 'phone_number', 'about', 'user', 'email','is_admin','userId',]
     
     
