@@ -459,3 +459,67 @@
   .blog-header h2 a:hover {
     color: #3498db;
   }
+
+  /* Profile Edit Form */
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.edit-profile-button {
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.edit-profile-button:hover {
+  color: #2980b9;
+}
+
+.profile-info form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-info label {
+  font-weight: bold;
+}
+
+.profile-info input,
+.profile-info textarea {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+}
+
+.profile-info textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.save-profile-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.save-profile-button:hover {
+  background-color: #2980b9;
+}
