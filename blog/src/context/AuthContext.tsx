@@ -11,6 +11,7 @@ interface AuthContextType {
   logoutUser: () => void;
   profile: any;  // Store the profile in context
   setProfile: (profile: any) => void;
+  updateProfile: (updatedProfile: any) => void; // Add updateProfile function
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -72,8 +73,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     navigate("/login");  // Redirect to login page after logout
   };
 
+  // Function to update the profile
+  const updateProfile = (updatedProfile: any) => {
+    setProfile((prevProfile: any) => ({
+      ...prevProfile,
+      ...updatedProfile,
+    }));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, error, setError, loginUser, logoutUser, profile, setProfile }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        error,
+        setError,
+        loginUser,
+        logoutUser,
+        profile,
+        setProfile,
+        updateProfile, // Add updateProfile to the context value
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
