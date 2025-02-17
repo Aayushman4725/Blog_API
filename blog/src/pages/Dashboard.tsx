@@ -8,15 +8,21 @@ import "../BlogList.css";
 
 const Dashboard = () => {
   const { profile, logoutUser, loading, user, updateProfile } = useAuth();
-  const [activeSection, setActiveSection] = useState<"profile" | "blog">("profile");
+  const [activeSection, setActiveSection] = useState<"profile" | "blog">(
+    "profile"
+  );
   const [userBlogs, setUserBlogs] = useState<any[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentBlog, setCurrentBlog] = useState<any>(null);
   const [newBlogTitle, setNewBlogTitle] = useState("");
   const [newBlogContent, setNewBlogContent] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState<{ [key: number]: string }>({});
-  const [translatedContent, setTranslatedContent] = useState<{ [key: number]: string }>({});
+  const [selectedLanguage, setSelectedLanguage] = useState<{
+    [key: number]: string;
+  }>({});
+  const [translatedContent, setTranslatedContent] = useState<{
+    [key: number]: string;
+  }>({});
   const [isEditingProfile, setIsEditingProfile] = useState(false); // State for profile edit mode
   const [editedProfile, setEditedProfile] = useState({
     name: "",
@@ -26,35 +32,38 @@ const Dashboard = () => {
     profile_picture: null as File | null, // Add profile_picture field
   });
 
-    // Fetch user's blogs
-    useEffect(() => {
-      if (activeSection === "blog") {
-        fetchUserBlogs();
-      }
-    }, [activeSection, user]);
-  
-    // Initialize editedProfile when profile data is available
-    useEffect(() => {
-      if (profile) {
-        setEditedProfile({
-          name: profile.user || "",
-          email: profile.email || "",
-          phone_number: profile.phone_number || "",
-          about: profile.about || "",
-          profile_picture: null, // Initialize profile_picture as null
-        });
-      }
-    }, [profile]);
+  // Fetch user's blogs
+  useEffect(() => {
+    if (activeSection === "blog") {
+      fetchUserBlogs();
+    }
+  }, [activeSection, user]);
+
+  // Initialize editedProfile when profile data is available
+  useEffect(() => {
+    if (profile) {
+      setEditedProfile({
+        name: profile.user || "",
+        email: profile.email || "",
+        phone_number: profile.phone_number || "",
+        about: profile.about || "",
+        profile_picture: null, // Initialize profile_picture as null
+      });
+    }
+  }, [profile]);
 
   const fetchUserBlogs = async () => {
     const token = localStorage.getItem("access") || user?.token;
 
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/blog/blog_list_user/user/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        "http://127.0.0.1:8000/api/blog/blog_list_user/user/",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setUserBlogs(response.data);
     } catch (error) {
       console.error("Error fetching user blogs:", error);
@@ -62,48 +71,63 @@ const Dashboard = () => {
   };
 
   // Handle profile update
- // Handle profile update
- const handleProfileUpdate = async () => {
-  const token = localStorage.getItem("access") || user?.token;
+  // Handle profile update
+  const handleProfileUpdate = async () => {
+    const token = localStorage.getItem("access") || user?.token;
 
-  const formData = new FormData();
-  formData.append("user[username]", editedProfile.name); // Update username
-  formData.append("phone_number", editedProfile.phone_number);
-  formData.append("about", editedProfile.about);
+    const formData = new FormData();
+    formData.append("user[username]", editedProfile.name); // Update username
+    formData.append("phone_number", editedProfile.phone_number);
+    formData.append("about", editedProfile.about);
 
-  if (editedProfile.profile_picture) {
-    formData.append("profile_picture", editedProfile.profile_picture); // Append profile picture
-  }
+    if (editedProfile.profile_picture) {
+      formData.append("profile_picture", editedProfile.profile_picture); // Append profile picture
+    }
 
-  try {
-    const response = await axios.put(
-      "http://127.0.0.1:8000/api/user/profile/",
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data", // Set content type for file upload
-        },
-      }
-    );
+    try {
+      const response = await axios.put(
+        "http://127.0.0.1:8000/api/user/profile/",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data", // Set content type for file upload
+          },
+        }
+      );
 
-    // Update the profile in the frontend state
-    updateProfile(response.data);
-    setIsEditingProfile(false); // Exit edit mode
-  } catch (error) {
-    console.error("Error updating profile:", error);
-  }
-};
+      // Update the profile in the frontend state
+      updateProfile(response.data);
+      setIsEditingProfile(false); // Exit edit mode
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
 
-// Handle profile picture change
-const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  if (e.target.files && e.target.files[0]) {
-    setEditedProfile({ ...editedProfile, profile_picture: e.target.files[0] });
-  }
-};
+  // Handle profile picture change
+  const handleProfilePictureChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (e.target.files && e.target.files[0]) {
+      setEditedProfile({
+        ...editedProfile,
+        profile_picture: e.target.files[0],
+      });
+    }
+  };
 
   // Handle blog creation
   const handleCreateBlog = async () => {
+    // Validate title and content
+    if (!newBlogTitle.trim() || !newBlogContent.trim()) {
+      alert("Title and content cannot be empty.");
+      return;
+    }
+    if (newBlogContent.length > 5000) {
+      alert("Cannot be more than 116 characters");
+      return;
+    }
+
     const token = localStorage.getItem("access") || user?.token;
 
     try {
@@ -113,6 +137,7 @@ const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         }
       );
@@ -122,6 +147,7 @@ const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       fetchUserBlogs(); // Refresh the blog list
     } catch (error) {
       console.error("Error creating blog:", error);
+      alert("Failed to create blog. Please try again.");
     }
   };
 
@@ -200,13 +226,17 @@ const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       {/* Sidebar */}
       <div className="sidebar">
         <button
-          className={`sidebar-button ${activeSection === "profile" ? "active" : ""}`}
+          className={`sidebar-button ${
+            activeSection === "profile" ? "active" : ""
+          }`}
           onClick={() => setActiveSection("profile")}
         >
           Profile
         </button>
         <button
-          className={`sidebar-button ${activeSection === "blog" ? "active" : ""}`}
+          className={`sidebar-button ${
+            activeSection === "blog" ? "active" : ""
+          }`}
           onClick={() => setActiveSection("blog")}
         >
           Blog
@@ -215,7 +245,7 @@ const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
       {/* Main Content */}
       <div className="main-content">
-      {activeSection === "profile" ? (
+        {activeSection === "profile" ? (
           <div className="profile-section">
             <h1>Welcome to your Dashboard</h1>
             {profile ? (
@@ -246,14 +276,16 @@ const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                       handleProfileUpdate();
                     }}
                   >
-                    
                     <label>
                       Phone Number:
                       <input
                         type="text"
                         value={editedProfile.phone_number}
                         onChange={(e) =>
-                          setEditedProfile({ ...editedProfile, phone_number: e.target.value })
+                          setEditedProfile({
+                            ...editedProfile,
+                            phone_number: e.target.value,
+                          })
                         }
                       />
                     </label>
@@ -262,7 +294,10 @@ const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                       <textarea
                         value={editedProfile.about}
                         onChange={(e) =>
-                          setEditedProfile({ ...editedProfile, about: e.target.value })
+                          setEditedProfile({
+                            ...editedProfile,
+                            about: e.target.value,
+                          })
                         }
                       />
                     </label>
@@ -282,7 +317,9 @@ const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   <>
                     <p>Name: {profile.user || "N/A"}</p>
                     <p>Email: {profile.email || "N/A"}</p>
-                    <p>Phone Number: {profile.phone_number || "Not provided"}</p>
+                    <p>
+                      Phone Number: {profile.phone_number || "Not provided"}
+                    </p>
                     <p>About: {profile.about || "No information available"}</p>
                   </>
                 )}
@@ -297,7 +334,10 @@ const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         ) : (
           <div className="blog-section">
             <h1>Your Blogs</h1>
-            <button className="create-blog-button" onClick={() => setShowCreateModal(true)}>
+            <button
+              className="create-blog-button"
+              onClick={() => setShowCreateModal(true)}
+            >
               <FaPlus /> Create Blog
             </button>
             {userBlogs.length > 0 ? (
@@ -311,6 +351,8 @@ const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   </div>
                   <div className="blog-content">
                     <p>{blog.blog}</p>
+                    <p>Posted by: {blog.user_name}</p>
+                    <p>Posted {blog.created_at}</p>
                     {translatedContent[blog.id] && (
                       <p>Translated content: {translatedContent[blog.id]}</p>
                     )}
@@ -373,7 +415,9 @@ const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                       <option value="el">Greek</option>
                       <option value="sw">Swahili</option>
                     </select>
-                    <button onClick={() => handleTranslate(blog.id, blog.blog)}>Translate</button>
+                    <button onClick={() => handleTranslate(blog.id, blog.blog)}>
+                      Translate
+                    </button>
                   </div>
                 </div>
               ))
@@ -386,7 +430,10 @@ const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
       {/* Create Blog Modal */}
       {showCreateModal && (
-        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+        <div
+          className="modal-overlay"
+          onClick={() => setShowCreateModal(false)}
+        >
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Create Blog</h2>
             <input
@@ -399,6 +446,7 @@ const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               placeholder="Content"
               value={newBlogContent}
               onChange={(e) => setNewBlogContent(e.target.value)}
+              maxLength={5000} // Ensure this matches the backend limit
             ></textarea>
             <div className="modal-buttons">
               <button onClick={handleCreateBlog}>Create</button>
