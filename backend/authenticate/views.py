@@ -102,7 +102,8 @@ class LoginView(APIView):
             Profile.objects.get_or_create(user=user)
             return Response({
                 'token': token,
-                'is_admin': user.is_staff,  # Include whether the user is an admin
+                'is_admin': user.is_staff,
+                'id' : user.id,
                 'detail': "Logged in successfully."
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
