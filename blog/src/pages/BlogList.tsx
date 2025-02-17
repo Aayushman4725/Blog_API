@@ -20,6 +20,8 @@ interface Blog {
   translated_content:string;
   likes: number;
   user: User; // user is now an object of type User
+  user_name: string;
+  created_at: string;
 }
 
 interface Comment {
@@ -29,7 +31,7 @@ interface Comment {
 }
 
 const BlogList: React.FC = () => {
-  const { isAuthenticated, user, logoutUser } = useAuth();
+  const { isAuthenticated, user,profile, logoutUser } = useAuth();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -175,6 +177,7 @@ const loggedInUserId = user?.id;
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         }
       )
@@ -295,6 +298,8 @@ const loggedInUserId = user?.id;
   {/* Content */}
   <div className="blog-content">
     <p>{blog.blog}</p>
+    <p>Posted by: {blog.user_name}</p>
+     <p>Posted {blog.created_at}</p>
     {translatedContent[blog.id] && (
       <p>Translated content: {translatedContent[blog.id]}</p>
     )}
@@ -307,7 +312,7 @@ const loggedInUserId = user?.id;
     </button>
     
 
-    {blog.user.id === loggedInUserId && (
+    {blog.user == profile.userId && (
   <div className="blog-actions">
     <button
       onClick={() => {
@@ -423,6 +428,7 @@ const loggedInUserId = user?.id;
         placeholder="Content"
         value={newBlogContent}
         onChange={(e) => setNewBlogContent(e.target.value)}
+        maxLength={5000}  // Ensure this matches the backend limit
       ></textarea>
       <div className="modal-buttons">
         <button onClick={handleCreateBlog}>Create</button>
