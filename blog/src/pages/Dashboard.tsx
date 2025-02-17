@@ -25,7 +25,7 @@ const Dashboard = () => {
   }>({});
   const [isEditingProfile, setIsEditingProfile] = useState(false); // State for profile edit mode
   const [editedProfile, setEditedProfile] = useState({
-    name: "",
+    user: "",
     email: "",
     phone_number: "",
     about: "",
@@ -43,7 +43,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (profile) {
       setEditedProfile({
-        name: profile.user || "",
+        user: profile.user || "",
         email: profile.email || "",
         phone_number: profile.phone_number || "",
         about: profile.about || "",
@@ -76,7 +76,7 @@ const Dashboard = () => {
     const token = localStorage.getItem("access") || user?.token;
 
     const formData = new FormData();
-    formData.append("user[username]", editedProfile.name); // Update username
+    formData.append("user", editedProfile.user); // Update username
     formData.append("phone_number", editedProfile.phone_number);
     formData.append("about", editedProfile.about);
 
@@ -276,6 +276,19 @@ const Dashboard = () => {
                       handleProfileUpdate();
                     }}
                   >
+                    <label>
+                      Username:
+                      <input
+                        type="text"
+                        value={editedProfile.user}
+                        onChange={(e) =>
+                          setEditedProfile({
+                            ...editedProfile,
+                            user: e.target.value,
+                          })
+                        }
+                      />
+                      </label>
                     <label>
                       Phone Number:
                       <input
