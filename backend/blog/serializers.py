@@ -3,13 +3,46 @@ from .models import Blog, Like
 from authenticate.models import Comment, Profile
 from authenticate.models import CustomUser
 from .utils import SentimentAnalyzer
+from django.contrib.humanize.templatetags.humanize import naturaltime
 
-# Blog serializer
+
+
 class BlogSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)  # Just set it as read_only
+    user_name = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField()
+
     class Meta:
         model = Blog
         fields = '__all__'
 
+    def get_user_name(self, obj):
+        # Accessing the related user and getting their username
+        return obj.user.username if obj.user else None  # Check if user exists
+
+    def get_created_at(self, obj):
+        # Convert the created_at datetime to "time ago" format
+        return naturaltime(obj.created_at)
+
+    def validate_blog(self, value):
+        # Remove extra spaces, newlines, and trim it to handle large content
+        if len(value) > 5000:  # Increased length limit to allow longer content
+            raise serializers.ValidationError("Blog content cannot exceed 5000 characters.")
+        return value
+
+    def create(self, validated_data):
+        # Automatically set the user to the currently authenticated user
+        user = self.context['request'].user  # Assuming request is available in the context
+        validated_data['user'] = user
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        # You don't need to update the user; it should remain the same
+        validated_data.pop('user', None)  # Ensure we don't update the user field
+        return super().update(instance, validated_data)
+
+        return value
+    
 # Comment serializer
 class CommentSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)  # Display the user's name
