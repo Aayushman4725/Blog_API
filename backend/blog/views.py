@@ -169,6 +169,7 @@ class TranslateBlogView(APIView):
         
         
 
+
 # Create Blog
 class CreateBlogAPIView(generics.CreateAPIView):
     queryset = Blog.objects.all()
