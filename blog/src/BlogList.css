@@ -1,36 +1,85 @@
+/* Variables */
+:root {
+  --color-primary: #3498db;
+  --color-secondary: #2c3e50;
+  --color-danger: #e74c3c;
+  --color-text: #555;
+  --color-background: #f5f5f5;
+  --font-family: 'Arial', sans-serif;
+  --font-size-base: 1rem;
+  --font-size-large: 1.2rem;
+  --font-size-xlarge: 2.5rem;
+  --spacing-unit: 10px;
+  --border-radius: 10px;
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --box-shadow-hover: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* General Styles */
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-background);
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1 {
+  font-size: var(--font-size-xlarge);
+  font-weight: 600;
+  color: var(--color-secondary);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
 /* Blog Card Layout */
 .blog-card {
   background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
   padding: 20px;
   transition: transform 0.2s, box-shadow 0.2s;
   overflow: hidden;
   position: relative;
+  animation: slideIn 0.5s ease;
 }
 
 .blog-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--box-shadow-hover);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Blog Header */
 .blog-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--spacing-unit);
   margin-bottom: 15px;
 }
 
 .blog-header h2 {
-  font-size: 1.2rem;
+  font-size: var(--font-size-large);
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--color-secondary);
   margin: 0;
 }
 
 .blog-header svg {
-  color: #3498db; /* Match the theme color */
+  color: var(--color-primary);
   width: 24px;
   height: 24px;
 }
@@ -42,7 +91,7 @@
 }
 
 .blog-header h2 a:hover {
-  color: #3498db;
+  color: var(--color-primary);
 }
 
 /* Blog Content */
@@ -52,10 +101,27 @@
 }
 
 .blog-content p {
-  font-size: 1rem;
-  color: #555;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
   line-height: 1.6;
   margin: 0;
+}
+
+.blog-content p.translated-content {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-left: 3px solid var(--color-primary);
+  font-style: italic;
+  color: var(--color-text);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.blog-content p.translated-content.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Blog Actions */
@@ -66,50 +132,18 @@
   margin-top: 15px;
 }
 
-.blog-actions .left-actions {
-  display: flex;
-  gap: 10px;
-}
-
+.blog-actions .left-actions,
 .blog-actions .right-actions {
   display: flex;
-  gap: 10px;
-}
-
-h1 {
-  font-size: 2.5rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.create-blog-button {
-  background: linear-gradient(45deg, #3498db, #2980b9);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 auto 20px;
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-
-.create-blog-button:hover {
-  background: linear-gradient(45deg, #2980b9, #3498db);
-  transform: translateY(-2px);
+  gap: var(--spacing-unit);
 }
 
 .blog-actions button {
   background: none;
   border: none;
-  color: #3498db;
+  color: var(--color-primary);
   cursor: pointer;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   display: flex;
   align-items: center;
   gap: 5px;
@@ -122,72 +156,71 @@ h1 {
 }
 
 .blog-actions button.like-button {
-  color: #e74c3c;
+  color: var(--color-danger);
 }
 
 .blog-actions button.like-button:hover {
   color: #c0392b;
 }
 
+/* Create Blog Button */
+.create-blog-button {
+  background: linear-gradient(45deg, var(--color-primary), #2980b9);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto 20px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.create-blog-button:hover {
+  background: linear-gradient(45deg, #2980b9, var(--color-primary));
+  transform: translateY(-2px);
+}
+
 /* Translation Section */
 .translation-section {
   margin: 15px 0;
   display: flex;
-  gap: 10px;
+  gap: var(--spacing-unit);
   align-items: center;
 }
 
 .translation-section select {
   flex: 1;
   padding: 8px;
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   border: 1px solid #ddd;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   background-color: #f9f9f9;
   transition: border-color 0.3s ease;
 }
 
 .translation-section select:focus {
-  border-color: #3498db;
+  border-color: var(--color-primary);
   outline: none;
 }
 
-
 .translation-section button {
-  background-color: #3498db;
+  background-color: var(--color-primary);
   color: white;
   border: none;
   padding: 8px 15px;
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   cursor: pointer;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   transition: background-color 0.3s ease;
   flex-shrink: 0;
-
 }
 
 .translation-section button:hover {
   background-color: #2980b9;
-}
-
-.blog-content p.translated-content {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #f9f9f9;
-  border-left: 3px solid #3498db;
-  font-style: italic;
-  color: #555;
-}
-
-.blog-content p.translated-content {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.blog-content p.translated-content.show {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* Comment Section */
@@ -199,21 +232,20 @@ h1 {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.2rem;
+  font-size: var(--font-size-large);
   font-weight: 500;
   margin-bottom: 10px;
-  color: #2c3e50;
+  color: var(--color-secondary);
 }
 
 .comment-section h3 svg {
-  color: #3498db;
+  color: var(--color-primary);
 }
-
 
 .comment-card {
   background: #f9f9f9;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   margin-bottom: 10px;
   animation: fadeIn 0.5s ease;
 }
@@ -234,27 +266,27 @@ h1 {
 .comment-section textarea {
   width: 100%;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   border: 1px solid #ddd;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   margin-bottom: 10px;
   resize: vertical;
   transition: border-color 0.3s ease;
 }
 
 .comment-section textarea:focus {
-  border-color: #3498db;
+  border-color: var(--color-primary);
   outline: none;
 }
 
 .comment-section button {
-  background-color: #3498db;
+  background-color: var(--color-primary);
   color: white;
   border: none;
   padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   cursor: pointer;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -271,17 +303,6 @@ h1 {
     opacity: 0;
   }
   to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
     opacity: 1;
   }
 }
@@ -303,11 +324,11 @@ h1 {
 /* Modal */
 .modal {
   background: white;
-  border-radius: 10px;
+  border-radius: var(--border-radius);
   padding: 20px;
   width: 90%;
   max-width: 500px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--box-shadow-hover);
   animation: slideIn 0.3s ease;
   z-index: 1001; /* Ensure it's above the overlay */
 }
@@ -316,21 +337,21 @@ h1 {
 .modal-buttons {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: var(--spacing-unit);
   margin-top: 20px;
 }
 
 .modal-buttons button {
   padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   border: none;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   transition: background-color 0.3s ease;
 }
 
 .modal-buttons button:first-child {
-  background-color: #3498db;
+  background-color: var(--color-primary);
   color: white;
 }
 
@@ -339,7 +360,7 @@ h1 {
 }
 
 .modal-buttons button:last-child {
-  background-color: #e74c3c;
+  background-color: var(--color-danger);
   color: white;
 }
 
@@ -347,43 +368,31 @@ h1 {
   background-color: #c0392b;
 }
 
-/* Animations */
-@keyframes slideIn {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
 /* Modal Input and Textarea */
 .modal input,
 .modal textarea {
   width: 100%;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   border: 1px solid #ddd;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   margin-bottom: 15px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .modal input:focus,
 .modal textarea:focus {
-  border-color: #3498db;
+  border-color: var(--color-primary);
   box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
   outline: none;
 }
-
 
 .modal textarea {
   resize: vertical;
   min-height: 150px;
 }
 
+/* Responsive Styles */
 @media (max-width: 768px) {
   .blog-card {
     padding: 15px;
@@ -404,7 +413,7 @@ h1 {
 
   .modal-buttons {
     flex-direction: column;
-    gap: 10px;
+    gap: var(--spacing-unit);
   }
 
   .modal-buttons button {
@@ -415,40 +424,14 @@ h1 {
 .loading-message,
 .error-message {
   text-align: center;
-  font-size: 1.2rem;
+  font-size: var(--font-size-large);
   margin-top: 20px;
 }
 
 .loading-message {
-  color: #3498db;
+  color: var(--color-primary);
 }
 
 .error-message {
-  color: #e74c3c;
-}
-
-.blog-card {
-  animation: slideIn 0.5s ease;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f5f5f5;
-  margin: 0;
-  padding: 0;
-}
-
-* {
-  box-sizing: border-box;
+  color: var(--color-danger);
 }

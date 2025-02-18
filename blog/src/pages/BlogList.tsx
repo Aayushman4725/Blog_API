@@ -46,7 +46,7 @@ const BlogList: React.FC = () => {
   const navigate = useNavigate();
   const [translatedContent, setTranslatedContent] = useState<{ [key: number]: string }>({}); // Store translated content for each blog
 const [selectedLanguage, setSelectedLanguage] = useState<{ [key: number]: string }>({}); // Store selected language for each blog
-const loggedInUserId = user?.id;
+
   // Fetch blog list
   useEffect(() => {
     fetchBlogs();
@@ -312,7 +312,7 @@ const loggedInUserId = user?.id;
     </button>
     
 
-    {blog.user == profile.userId && (
+    {profile && profile.userId && blog.user == profile.userId && (
   <div className="blog-actions">
     <button
       onClick={() => {

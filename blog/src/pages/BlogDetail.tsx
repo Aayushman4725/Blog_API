@@ -17,6 +17,7 @@ interface Blog {
   title: string;
   blog: string;
   likes: number;
+  user: number;
   user_name : string;
   created_at: string;
 
@@ -286,7 +287,7 @@ const BlogDetail: React.FC = () => {
         </div>
 
         {/* Edit and Delete Buttons (for blog owner) */}
-        {blog.user == profile.userId && (
+        {profile && profile.userId && blog.user == profile.userId &&  (
           <div className="blog-actions">
             <button onClick={() => setShowEditModal(true)}>
               <FaEdit /> Edit
