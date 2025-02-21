@@ -11,4 +11,7 @@ class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True,min_length=8)
     confirm_password = serializers.CharField(write_only=True, min_lenght=8)
 
-    
+    class Meta :
+        model = User
+        fields = ['all']
+        
