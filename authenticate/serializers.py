@@ -61,6 +61,14 @@ class ActivateSerializer(serializers.Serializer):
         user.is_active = True
         user.save()
         return user
+    
+
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='user.username')
+    userID = serializers.CharField(source='user.id',read_only = True)
+    email = serializers.CharField(source.'user.email',read_only=True)
+    is_admin = serializers.BooleanField(source='uesr.is_staff',read_only= True)
+    profile_picture = serializers.ImageField(required=False)
 
 
 
