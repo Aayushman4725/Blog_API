@@ -5,12 +5,12 @@ from django.conf import settings
 class Blog(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     title = models.CharField(max_length=100)
-    blog = models.TextField(max_length=500)
-    summarized_blog = models.TextField(max_length=500, blank=True, null=True)  # Field for storing summary
+    blog = models.TextField(max_length=5000)
+    summarized_blog = models.TextField(max_length=5000, blank=True, null=True)  # Field for storing summary
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     likes = models.IntegerField(default=0)
-    translated_blog = models.TextField(max_length=500, blank=True, null=True)
+    translated_blog = models.TextField(max_length=5000, blank=True, null=True)
 
     def __str__(self):
         return self.title

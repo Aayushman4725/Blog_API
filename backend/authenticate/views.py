@@ -24,6 +24,7 @@ from django.utils.decorators import method_decorator
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from django.http import HttpResponseRedirect
+from rest_framework.parsers import MultiPartParser, FormParser
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +102,8 @@ class LoginView(APIView):
             Profile.objects.get_or_create(user=user)
             return Response({
                 'token': token,
-                'is_admin': user.is_staff,  # Include whether the user is an admin
+                'is_admin': user.is_staff,
+                'id' : user.id,
                 'detail': "Logged in successfully."
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -139,7 +141,7 @@ class LogoutView(APIView):
 
 class PasswordResetView(APIView):
     permission_classes = [AllowAny]
-
+    parser_classes = [MultiPartParser, FormParser]
     @csrf_exempt
     def post(self, request):
         logger.info("Password reset post method triggered.")  # Log statement
@@ -187,7 +189,7 @@ class ProfileUpdateView(APIView):
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializers.error, status = status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
         
         except Profile.DoesNotExist:
             return Response({'error': 'Profile does not exist'}, status=status.HTTP_404_NOT_FOUND)

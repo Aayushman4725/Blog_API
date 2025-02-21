@@ -65,13 +65,40 @@ class ActivateSerializer(serializers.Serializer):
         return user
 
 
+
+
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username')  # Include user fields like username
-    userId = serializers.CharField(source='user.id')  # Include user fields like username
-    email = serializers.CharField(source='user.email')  # Include email from the user model
-    is_admin = serializers.BooleanField(source='user.is_staff')
+    userId = serializers.CharField(source='user.id',read_only=True)  # Include user fields like username
+    email = serializers.CharField(source='user.email',read_only=True)  # Include email from the user model
+    is_admin = serializers.BooleanField(source='user.is_staff',read_only=True) 
+    profile_picture = serializers.ImageField(required=False)  # Allow updating profile picture
+    
     class Meta:
         model = Profile
         fields = ['profile_picture', 'phone_number', 'about', 'user', 'email','is_admin','userId',]
+    
+    def update(self, instance, validated_data):
+        # Extract nested user data
+        user_data = validated_data.pop("user", None)
+
+        # Update the Profile instance
+        instance.phone_number = validated_data.get("phone_number", instance.phone_number)
+        instance.about = validated_data.get("about", instance.about)
+
+        # Handle profile picture update
+        profile_picture = validated_data.get("profile_picture")
+        if profile_picture:
+            instance.profile_picture = profile_picture
+
+        instance.save()
+
+        # Update the related User instance
+        if user_data:
+            user = instance.user
+            user.username = user_data.get("username", user.username)
+            user.save()
+
+        return instance
     
     

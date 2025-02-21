@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django_browser_reload',
     'tailwind',
     'corsheaders',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
