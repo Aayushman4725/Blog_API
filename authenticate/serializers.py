@@ -64,11 +64,18 @@ class ActivateSerializer(serializers.Serializer):
     
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
-    user = serializers.CharField(source='user.username')
-    userID = serializers.CharField(source='user.id',read_only = True)
-    email = serializers.CharField(source.'user.email',read_only=True)
-    is_admin = serializers.BooleanField(source='uesr.is_staff',read_only= True)
-    profile_picture = serializers.ImageField(required=False)
+    user = serializers.CharField(source='user.username')  # Include user fields like username
+    userId = serializers.CharField(source='user.id',read_only=True)  # Include user fields like username
+    email = serializers.CharField(source='user.email',read_only=True)  # Include email from the user model
+    is_admin = serializers.BooleanField(source='user.is_staff',read_only=True) 
+    profile_picture = serializers.ImageField(required=False)  # Allow updating profile picture
+    
+    class Meta:
+        model = Profile
+        fields = ['profile_picture', 'phone_number', 'about', 'user', 'email','is_admin','userId',]
+        
+
+    
 
 
 
