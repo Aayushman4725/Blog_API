@@ -48,6 +48,13 @@ class ActivateSerializer(serializers.Serializer):
     uid = serializers.CharField()
     token = serializers.CharField()
 
+    def validate(self, data):
+        try:
+            uid = urlsafe_base64_decode(data['uid']).decode()
+            user = User.objects.get(pk=uid)
+        except (ValueError, User.DoesNotExist):
+            raise serializers.ValidationError({"detail": "Invalid activation link."})
+
     
 
 
