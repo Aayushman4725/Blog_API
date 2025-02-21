@@ -73,6 +73,11 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['profile_picture', 'phone_number', 'about', 'user', 'email','is_admin','userId',]
+
+    def update(self,instance,validated_data):
+        #Extract nested user data
+        user_data = validated_data.pop("user",None)
+
         
 
     
