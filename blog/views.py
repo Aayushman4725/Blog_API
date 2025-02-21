@@ -1,228 +1,199 @@
-from django.shortcuts import render, redirect,get_object_or_404
-from authenticate.models import Comment
-from blog.models import Blog,Like
-from django.views.generic.list import ListView
-from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView,UpdateView,DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
-from .forms import BlogForm,BlogEdit,ComentForm,EditProfileForm
-from django.views import View
-from django.contrib.auth.models import User
-from authenticate.models import Profile
-from django.contrib.auth import get_user_model
-from django.http import JsonResponse
-from .utils import translate_text,summarize_blog
-import json
-from django.contrib.admin.views.decorators import staff_member_required
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
-from .utils import SentimentAnalyzer
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes,authentication_classes
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .serializers import BlogSerializer, CommentSerializer, ProfileSerializer
+from .models import Blog,Like
+from authenticate.models import Comment, Profile
+from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
+from .utils import translate_text
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 
-User=get_user_model()
+# Blog list API view
+@api_view(['GET'])
+@authentication_classes([])  # Disable authentication
+@permission_classes([AllowAny])  # Allow any user to access the view
+def blog_list(request):
+    if request.method == 'GET':
+        blogs = Blog.objects.all()
+        serializer = BlogSerializer(blogs, many=True)
+        return Response(serializer.data)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])  
+def blog_list_user(request):
+    print(f"Authenticated User: {request.user}")  # Debugging line
+    blogs = Blog.objects.filter(user=request.user)
+    print(f"Blogs Returned: {blogs}")  # Debugging line
+    serializer = BlogSerializer(blogs, many=True)
+    return Response(serializer.data)
 
+    
 
-# views.py
-class BlogList(ListView):
-    model = Blog
-    template_name = 'blog_list.html'
-    context_object_name = 'blogs'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        search_input = self.request.GET.get('search_area') or ''
-        if search_input:
-            context['blogs'] = context['blogs'].filter(title__startswith=search_input)
-        else:
-            context['blogs'] = self.get_queryset()
-
-        for blog in context['blogs']:
-            # Check if the summary already exists in the database, otherwise, generate it
-            if not blog.summarized_blog:
-                blog.summarized_blog = summarize_blog(blog.blog)
-                blog.save()  # Save the summary in the database
-
-            blog.summary = blog.summarized_blog  # Use the stored summary
-
-        context['search_input'] = search_input
-        return context
-
-
-def translate_blog_view(request, pk):
+# Blog detail API view
+@api_view(['GET'])
+def blog_detail(request, pk):
     blog = get_object_or_404(Blog, pk=pk)
+    if request.method == 'GET':
+        serializer = BlogSerializer(blog)
+        return Response(serializer.data)
+    
 
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            target_lang = data.get('language', 'fr')  # Default to French
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON'}, status=400)
-
-        try:
-            translated_content = translate_text(blog.blog, target_lang)
-            # Log the translated content to see what's returned
-            print(f"Translated content: {translated_content}")
-            return JsonResponse({'translated_content': translated_content})
-        except Exception as e:
-            return JsonResponse({'error': 'Translation failed', 'details': str(e)}, status=500)
-
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
-
-
-class UserList(LoginRequiredMixin,ListView):
-    model = Blog
-    template_name = 'user_list.html'
-    context_object_name = 'blogs'  
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # context['blogs'] = context['blogs'].filter(user=self.request.user)
-        search_input = self.request.GET.get('search_area') or ''
+# Create a comment API view
+class CommentAPIView(APIView):
+    def get_permissions(self):
+        """
+        Dynamically assign permissions based on the HTTP method.
+        - AllowAny for GET (public access).
+        - IsAuthenticated for POST (only authenticated users).
+        """
+        if self.request.method == "POST":
+            return [IsAuthenticated()]
+        return [AllowAny()]
+    def get(self, request, pk=None):
+        # If a blog ID is provided, filter comments for that blog
         
+        comments = Comment.objects.filter(blog_id=pk)
         
-        if search_input:
-            context['blogs'] =  context['blogs'].filter(title__startswith=search_input)
-        else:
-            context['blogs'] = self.get_queryset()
-
-        if self.request.user.is_authenticated:
-            context['blogs'] = context['blogs'].filter(user=self.request.user)
-            profile, created = Profile.objects.get_or_create(user=self.request.user)
-            context['profile'] = profile
-        
-        context['search_input'] = search_input
-        return context
-    
-
-
-
-
-class createBlog(LoginRequiredMixin,CreateView):
-    model = Blog
-    template_name = 'blog_form.html'
-    form_class = BlogForm
-    success_url = reverse_lazy('blog')
-
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super(createBlog, self).form_valid(form)
-
-class EditBlog(LoginRequiredMixin ,UpdateView):
-    model = Blog
-    template_name = 'edit_blog.html'
-    form_class = BlogEdit
-    
-    success_url = reverse_lazy('user_dashboard')
-    def get_success_url(self):
-        return reverse_lazy('user_dashboard', kwargs={'pk': self.request.user.pk})
-
-class DeleteBlog(LoginRequiredMixin ,DeleteView):
-    model = Blog
-    template_name = 'delete_blog.html'
-    get_object_name = 'blog'
-    success_url = reverse_lazy('user_dashboard')
-    
-    def get_success_url(self):
-        return reverse_lazy('user_dashboard', kwargs={'pk': self.request.user.pk})
-    
-
-def liked_blog(request, pk):
-   
-        blog = get_object_or_404(Blog, pk=pk)
-        if not Like.objects.filter(user=request.user, blog=blog).exists():
-            Like.objects.create(user=request.user, blog=blog)
-        else:
-            like = Like.objects.filter(user=request.user, blog=blog).first()
-            like.delete()
-        return render(request, 'like.html', {'b': blog})   # Make sure 'blog' is the correct name of the URL pattern for your blog list or detail view.
-
-class CommentView(View):
-    form_class = ComentForm
-    template_name = 'comment.html'
-    success_url = reverse_lazy('blog')  # Replace with your actual success URL
-
-    def get_blog(self, pk):
-        try:
-            return Blog.objects.get(pk=pk)
-        except Blog.DoesNotExist:
-            return None
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
 
     def post(self, request, pk, *args, **kwargs):
-        blog = self.get_blog(pk)
-        if blog is None:
-            return render(request, '404.html')  # Handle missing blog gracefully
+        # Fetch the blog using the primary key (pk)
+        blog = get_object_or_404(Blog, pk=pk)
 
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            # Assign the logged-in user and blog to the comment instance
-            form.instance.user = request.user
-            form.instance.blog = blog
+        # Prepare the data to be serialized
+        serializer = CommentSerializer(data=request.data)
 
-            # Analyze the comment sentiment
-            sentiment_analyzer = SentimentAnalyzer()
-            is_negative = sentiment_analyzer.analyze_sentiment(form.cleaned_data['comment_text'])
+        if serializer.is_valid():
+            # Add the blog and user to the validated data
+            serializer.validated_data['blog'] = blog
+            serializer.validated_data['user'] = request.user
 
-            # Update the 'is_negative' and 'needs_review' fields
-            form.instance.is_negative = is_negative == 'negative'  # Adjust based on your model output
-            form.instance.needs_review = form.instance.is_negative  # Flag for admin review if negative
+            # Save the comment and return a response
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-            # Save the comment instance
-            form.save()
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            # Redirect after saving
-            return redirect(self.success_url)
-        
-        # Render the form with errors if not valid
-        return render(request, self.template_name, {'form': form, 'blog': blog})
-class CommentDetail(ListView):
-    model = Comment
-    template_name = 'comentDetail.html'
-    context_object_name = 'comments'
+    
 
-    def get_queryset(self):
-        pk = self.kwargs.get('pk')
-        return Comment.objects.filter(blog_id=pk)
-
-@method_decorator(staff_member_required, name='dispatch')
-class AdminCommentReviewView(ListView):
-    model = Comment
-    template_name = 'admin_review_comments.html'
-    context_object_name = 'comments'
+class AdminCommentReviewView(generics.ListAPIView):
+    queryset = Comment.objects.filter(needs_review=True)
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAdminUser]  # Ensures only admin users can access this view
 
     def get_queryset(self):
         return Comment.objects.filter(needs_review=True)
-
-@csrf_exempt
-def approve_comment(request, pk):
-    if request.method == 'POST':
-        comment = Comment.objects.get(pk=pk)
+    
+class ApproveCommentAPIView(APIView):
+    
+    def post(self, request, pk, *args, **kwargs):
+        # Fetch the comment using pk
+        comment = get_object_or_404(Comment, pk=pk)
+        
+        # Update the 'needs_review' field to False
         comment.needs_review = False
         comment.save()
-        return redirect('admin_review_comments')
-    return HttpResponse(status=405)
-
-@csrf_exempt
-def delete_comment(request, pk):
-    if request.method == 'POST':
-        comment = Comment.objects.get(pk=pk)
+        
+        return Response({"message": "Comment approved successfully."}, status=status.HTTP_200_OK)
+    
+class DeleteCommentAPIView(APIView):
+    
+    def post(self, request, pk, *args, **kwargs):
+        # Fetch the comment using pk
+        comment = get_object_or_404(Comment, pk=pk)
+        
+        # Delete the comment
         comment.delete()
-        return redirect('admin_review_comments')
-    return HttpResponse(status=405)
+        
+        return Response({"message": "Comment deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
-# def change_profile_pic(request,pk):
-#     user = get_object_or_404(User, pk=pk)
+# Like a blog API view
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def like_blog(request, pk):
+    blog = get_object_or_404(Blog, pk=pk)
 
+    # Check if the user has already liked the blog
+    if not Like.objects.filter(user=request.user, blog=blog).exists():
+        # Create the like object
+        Like.objects.create(user=request.user, blog=blog)
+        # Increment the likes count in the blog model
+        blog.likes += 1
+        blog.save()  # Save the updated blog with the incremented like count
+        return Response({'status': 'Liked', 'likes': blog.likes}, status=status.HTTP_201_CREATED)
+    else:
+        # If the user has already liked the blog, remove the like
+        like = Like.objects.filter(user=request.user, blog=blog).first()
+        like.delete()
+        # Decrement the likes count in the blog model
+        blog.likes -= 1
+        blog.save()  # Save the updated blog with the decremented like count
+        return Response({'status': 'Unliked', 'likes': blog.likes}, status=status.HTTP_200_OK)
 
-class EditProfile(UpdateView):
-    form_class = EditProfileForm
-    template_name = 'EditProfile.html'
+# Profile update API view
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_profile(request):
+    profile = get_object_or_404(Profile, user=request.user)
+    if request.method == 'PUT':
+        serializer = ProfileSerializer(profile, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    success_url = reverse_lazy('user_dashboard')
-    
-    def get_object(self, queryset=None):
-        return get_object_or_404(Profile, user=self.request.user)
 
-    def get_success_url(self):
-        return reverse_lazy('user_dashboard', kwargs={'pk': self.request.user.pk})
+class TranslateBlogView(APIView):
+    def post(self, request, pk):
+        blog = get_object_or_404(Blog, pk=pk)
+
+        # Parse the JSON body
+        target_lang = request.data.get('language', 'fr')  # Default to French
+
+        try:
+            # Translate the blog content
+            translated_content = translate_text(blog.blog, target_lang)
+            # Log the translated content to see what's returned
+            print(f"Translated content: {translated_content}")
+            return Response({'translated_content': translated_content}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {'error': 'Translation failed', 'details': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        
+
+
+# Create Blog
+class CreateBlogAPIView(generics.CreateAPIView):
+    queryset = Blog.objects.all()
+    serializer_class = BlogSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        
+
+# Edit Blog
+class EditBlogAPIView(generics.UpdateAPIView):
+    queryset = Blog.objects.all()
+    serializer_class = BlogSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Blog.objects.filter(user=self.request.user)
+    
+
+# Delete Blog
+class DeleteBlogAPIView(generics.DestroyAPIView):
+    queryset = Blog.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Blog.objects.filter(user=self.request.user)
