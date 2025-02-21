@@ -88,7 +88,15 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             instance.profile_picture = profile_picture
 
         instance.save()
-    
+
+
+        # Update the related User instance
+        if user_data:
+            user = instance.user
+            user.username = user_data.get("username", user.username)
+            user.save()
+
+        return instance
 
 
 
