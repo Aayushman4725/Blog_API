@@ -78,7 +78,9 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         #Extract nested user data
         user_data = validated_data.pop("user",None)
 
-        
+          # Update the Profile instance
+        instance.phone_number = validated_data.get("phone_number", instance.phone_number)
+        instance.about = validated_data.get("about", instance.about)
 
     
 
