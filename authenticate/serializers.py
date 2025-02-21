@@ -55,6 +55,8 @@ class ActivateSerializer(serializers.Serializer):
         except (ValueError, User.DoesNotExist):
             raise serializers.ValidationError({"detail": "Invalid activation link."})
 
+        if not generate_token.check_token(user, data['token']):
+            raise serializers.ValidationError({"detail": "Invalid activation token."})
     
 
 
