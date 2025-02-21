@@ -33,24 +33,21 @@ def translate_text(content, target_lang):
             ("en", "es"): "Helsinki-NLP/opus-mt-en-es",
             ("en", "it"): "Helsinki-NLP/opus-mt-en-it",
             ("en", "zh-cn"): "Helsinki-NLP/opus-mt-en-zh",
-            ("en", "ja"): "Helsinki-NLP/opus-mt-en-ja",
             ("en", "ar"): "Helsinki-NLP/opus-mt-en-ar",
             ("en", "ru"): "Helsinki-NLP/opus-mt-en-ru",
-            ("en", "pt"): "Helsinki-NLP/opus-mt-en-pt",
             ("en", "nl"): "Helsinki-NLP/opus-mt-en-nl",
-            ("en", "ko"): "Helsinki-NLP/opus-mt-en-ko",
             ("en", "hi"): "Helsinki-NLP/opus-mt-en-hi",
             ("en", "sv"): "Helsinki-NLP/opus-mt-en-sv",
-            ("en", "pl"): "Helsinki-NLP/opus-mt-en-pl",
             ("en", "da"): "Helsinki-NLP/opus-mt-en-da",
             ("en", "fi"): "Helsinki-NLP/opus-mt-en-fi",
             ("en", "cs"): "Helsinki-NLP/opus-mt-en-cs",
-            ("en", "tr"): "Helsinki-NLP/opus-mt-en-tr",
+           
             ("en", "he"): "Helsinki-NLP/opus-mt-en-he",
             ("en", "bg"): "Helsinki-NLP/opus-mt-en-bg",
             ("en", "uk"): "Helsinki-NLP/opus-mt-en-uk",
             ("en", "ro"): "Helsinki-NLP/opus-mt-en-ro",
             ("en", "id"): "Helsinki-NLP/opus-mt-en-id",
+            #checked upto here
             ("en", "ms"): "Helsinki-NLP/opus-mt-en-ms",
             ("en", "th"): "Helsinki-NLP/opus-mt-en-th",
             ("en", "vi"): "Helsinki-NLP/opus-mt-en-vi",
@@ -68,19 +65,19 @@ def translate_text(content, target_lang):
             ("es", "en"): "Helsinki-NLP/opus-mt-es-en",
             ("it", "en"): "Helsinki-NLP/opus-mt-it-en",
             ("zh-cn", "en"): "Helsinki-NLP/opus-mt-zh-en",
-            ("ja", "en"): "Helsinki-NLP/opus-mt-ja-en",
+            
             ("ar", "en"): "Helsinki-NLP/opus-mt-ar-en",
             ("ru", "en"): "Helsinki-NLP/opus-mt-ru-en",
-            ("pt", "en"): "Helsinki-NLP/opus-mt-pt-en",
+            
             ("nl", "en"): "Helsinki-NLP/opus-mt-nl-en",
-            ("ko", "en"): "Helsinki-NLP/opus-mt-ko-en",
+            
             ("hi", "en"): "Helsinki-NLP/opus-mt-hi-en",
             ("sv", "en"): "Helsinki-NLP/opus-mt-sv-en",
-            ("pl", "en"): "Helsinki-NLP/opus-mt-pl-en",
+            
             ("da", "en"): "Helsinki-NLP/opus-mt-da-en",
             ("fi", "en"): "Helsinki-NLP/opus-mt-fi-en",
             ("cs", "en"): "Helsinki-NLP/opus-mt-cs-en",
-            ("tr", "en"): "Helsinki-NLP/opus-mt-tr-en",
+            
             ("he", "en"): "Helsinki-NLP/opus-mt-he-en",
             ("bg", "en"): "Helsinki-NLP/opus-mt-bg-en",
             ("uk", "en"): "Helsinki-NLP/opus-mt-uk-en",
@@ -148,24 +145,28 @@ def translate_text(content, target_lang):
 
 class SentimentAnalyzer:
     def __init__(self):
+        # Set the paths for the model and vectorizer
         base_path = os.path.dirname(os.path.dirname(__file__))
         model_path = os.path.join(base_path, 'model', 'trained_model.sav')
-        vectorizer_path = os.path.join(base_path, 'model', 'vectorizer.pkl')  # Assuming you saved the vectorizer
+        vectorizer_path = os.path.join(base_path, 'model', 'vectorizer.pkl')
 
         # Load the trained logistic regression model
         with open(model_path, 'rb') as f:
             self.model = pickle.load(f)
 
-        # Load the vectorizer (ensure the vectorizer was saved during model training)
+        # Load the vectorizer
         with open(vectorizer_path, 'rb') as f:
             self.vectorizer = pickle.load(f)
 
     def analyze_sentiment(self, comment_text):
-        # Convert the comment text into numeric features using the same vectorizer
-        input_data = self.vectorizer.transform([comment_text])  # Transform text to numeric features
-        
+        # Transform the comment text into numeric features using the vectorizer
+        input_data = self.vectorizer.transform([comment_text])
+
         # Predict the sentiment using the model
         prediction = self.model.predict(input_data)
-        
-        # Return 1 for positive sentiment, 0 for negative sentiment
-        return prediction[0]  # 1 for positive, 0 for negative
+
+        # Map the model's output (1 or 0) to human-readable sentiment labels
+        if prediction[0] == 1:
+            return 'positive'
+        else:
+            return 'negative'
