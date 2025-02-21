@@ -82,6 +82,12 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         instance.phone_number = validated_data.get("phone_number", instance.phone_number)
         instance.about = validated_data.get("about", instance.about)
 
+        # Handle profile picture update
+        profile_picture = validated_data.get("profile_picture")
+        if profile_picture:
+            instance.profile_picture = profile_picture
+
+        instance.save()
     
 
 
