@@ -8,10 +8,9 @@ from .models import Profile
 User = get_user_model()
 
 class SignupSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True,min_length=8)
-    confirm_password = serializers.CharField(write_only=True, min_lenght=8)
+    password = serializers.CharField(write_only=True, min_length=8)
+    confirm_password = serializers.CharField(write_only=True, min_length=8)
 
-    class Meta :
+    class Meta:
         model = User
-        fields = ['all']
-        
+        fields = ['username', 'email', 'password', 'confirm_password']
