@@ -1,0 +1,117 @@
+/* signup.css */
+
+/* Global styles */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #eef2f7; /* Light grayish blue */
+  
+}
+
+/* Signup container */
+.signup-container {
+  width: 100%;
+  max-width: 450px;
+  background-color: #ea2626; /* White background */
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  text-align: center;
+}
+
+/* Header styles */
+h2 {
+  font-size: 2rem;
+  color: #4a4a4a;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+/* Success/Error message styles */
+.message {
+  text-align: left;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+}
+
+.error-message {
+  color: #e74c3c; /* Red for errors */
+  background-color: #f8d7da; /* Light red background */
+}
+
+.success-message {
+  color: #2ecc71; /* Green for success */
+  background-color: #d4edda; /* Light green background */
+}
+
+/* Form styling */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* Input field styles */
+label {
+  font-size: 1.1rem;
+  color: #555;
+  font-weight: 500;
+  text-align: left;
+  margin-bottom: 0.5rem;
+}
+
+input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+  outline: none;
+  transition: border 0.3s ease;
+}
+
+input:focus {
+  border-color: #3498db; /* Blue border on focus */
+  background-color: #fff;
+}
+
+/* Button styling */
+button {
+  padding: 12px 20px;
+  background-color: #3498db; /* Blue button */
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #2980b9; /* Darker blue on hover */
+}
+
+/* Input group container */
+form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .signup-container {
+      padding: 20px;
+      max-width: 100%;
+  }
+
+  h2 {
+      font-size: 1.8rem;
+  }
+}

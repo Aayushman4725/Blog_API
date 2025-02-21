@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import { FaEdit, FaTrash, FaPlus, FaUserCircle } from "react-icons/fa";
-import "../Dashboard.css"; // Import CSS file for styling
+import "../styles/Dashboard.css"; // Import CSS file for styling
 import { Link } from "react-router-dom";
-import "../BlogList.css";
-const Dashboard = () => {
+
+const Dashboard: React.FC = () => {
   const { profile, logoutUser, loading, user } = useAuth();
   const [activeSection, setActiveSection] = useState<"profile" | "blog">("profile");
   const [userBlogs, setUserBlogs] = useState<any[]>([]);
@@ -14,22 +14,19 @@ const Dashboard = () => {
   const [currentBlog, setCurrentBlog] = useState<any>(null);
   const [newBlogTitle, setNewBlogTitle] = useState("");
   const [newBlogContent, setNewBlogContent] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState<{ [key: number]: string }>({}); // Store selected language for each blog
-  const [translatedContent, setTranslatedContent] = useState<{ [key: number]: string }>({}); // Store translated content for each blog
+
   // Fetch user's blogs
   useEffect(() => {
-    
-      fetchUserBlogs();
-    
+    fetchUserBlogs();
   }, [activeSection, user]);
 
   const fetchUserBlogs = async () => {
     const token = localStorage.getItem("access") || user?.token;
-  
+
     try {
       const response = await axios.get("http://127.0.0.1:8000/api/blog/blog_list_user/user/", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // Corrected syntax
         },
       });
       setUserBlogs(response.data);
@@ -49,7 +46,7 @@ const Dashboard = () => {
         { title: newBlogTitle, blog: newBlogContent },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // Corrected syntax
           },
         }
       );
@@ -68,11 +65,11 @@ const Dashboard = () => {
 
     try {
       await axios.put(
-        `http://127.0.0.1:8000/api/blog/edit/${currentBlog.id}/`,
+        `http://127.0.0.1:8000/api/blog/edit/${currentBlog.id}/`, // Corrected syntax
         { title: newBlogTitle, blog: newBlogContent },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // Corrected syntax
           },
         }
       );
@@ -92,7 +89,7 @@ const Dashboard = () => {
     try {
       await axios.delete(`http://127.0.0.1:8000/api/blog/delete/${blogId}/`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // Corrected syntax
         },
       });
       fetchUserBlogs(); // Refresh the blog list
@@ -101,32 +98,9 @@ const Dashboard = () => {
     }
   };
 
-  const handleTranslate = async (blogId: number, text: string) => {
-    const language = selectedLanguage[blogId];
-    if (!language) {
-      alert("Please select a language.");
-      return;
-    }
-  
-    try {
-      const response = await axios.post(
-        `http://127.0.0.1:8000/api/blog/blogs/${blogId}/translate/`, // Include blog ID in the URL
-        { language }
-      );
-  
-      setTranslatedContent((prev) => ({
-        ...prev,
-        [blogId]: response.data.translated_content, // Assuming the API returns { translated_text: "..." }
-      }));
-    } catch (error) {
-      console.error("Error translating blog:", error);
-      alert("Translation failed. Please try again.");
-    }
-  };
-
   // Ensure full URL for the profile picture
   const profilePictureUrl = profile?.profile_picture
-    ? `http://127.0.0.1:8000${profile.profile_picture}`
+    ? `http://127.0.0.1:8000${profile.profile_picture}` // Corrected syntax
     : "media/images/profile_picture/default-avatar.jpg";
 
   if (loading) {
@@ -138,13 +112,13 @@ const Dashboard = () => {
       {/* Sidebar */}
       <div className="sidebar">
         <button
-          className={`sidebar-button ${activeSection === "profile" ? "active" : ""}`}
+          className={`sidebar-button ${activeSection === "profile" ? "active" : ""}`} // Corrected syntax
           onClick={() => setActiveSection("profile")}
         >
           Profile
         </button>
         <button
-          className={`sidebar-button ${activeSection === "blog" ? "active" : ""}`}
+          className={`sidebar-button ${activeSection === "blog" ? "active" : ""}`} // Corrected syntax
           onClick={() => setActiveSection("blog")}
         >
           Blog
@@ -182,16 +156,13 @@ const Dashboard = () => {
               userBlogs.map((blog) => (
                 <div key={blog.id} className="blog-card">
                   <div className="blog-header">
-                      <FaUserCircle size={24} />
-                      <h2>
-                        <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
-                      </h2>
-                    </div>
-                    <div className="blog-content">
-                  <p>{blog.blog}</p>
-                  {translatedContent[blog.id] && (
-      <p>Translated content: {translatedContent[blog.id]}</p>
-    )}
+                    <FaUserCircle size={24} />
+                    <h2>
+                      <Link to={`/blogs/${blog.id}`}>{blog.title}</Link> {/* Corrected syntax */}
+                    </h2>
+                  </div>
+                  <div className="blog-content">
+                    <p>{blog.blog}</p>
                   </div>
                   <div className="blog-actions">
                     <button
@@ -208,55 +179,7 @@ const Dashboard = () => {
                       <FaTrash /> Delete
                     </button>
                   </div>
-                  {/* Translation Section */}
-  <div className="translation-section">
-    <select
-      value={selectedLanguage[blog.id] || ""}
-      onChange={(e) =>
-        setSelectedLanguage((prev) => ({
-          ...prev,
-          [blog.id]: e.target.value,
-        }))
-      }
-    >
-      <option value="">Select Language</option>
-
-  
-  <option value="de">German</option>
-  <option value="fr">French</option>
-  <option value="es">Spanish</option>
-  <option value="it">Italian</option>
-  <option value="zh-cn">Chinese (Simplified)</option>
-  <option value="ar">Arabic</option>
-  <option value="ru">Russian</option>
-  <option value="nl">Dutch</option>
-  <option value="hi">Hindi</option>
-  <option value="sv">Swedish</option>
-  <option value="da">Danish</option>
-  <option value="fi">Finnish</option>
-  <option value="cs">Czech</option>
-  <option value="he">Hebrew</option>
-  <option value="bg">Bulgarian</option>
-  <option value="uk">Ukrainian</option>
-  <option value="ro">Romanian</option>
-  <option value="id">Indonesian</option>
-  <option value="ms">Malay</option>
-  <option value="th">Thai</option>
-  <option value="vi">Vietnamese</option>
-  <option value="no">Norwegian</option>
-  <option value="hu">Hungarian</option>
-  <option value="lt">Lithuanian</option>
-  <option value="lv">Latvian</option>
-  <option value="et">Estonian</option>
-  <option value="sk">Slovak</option>
-  <option value="sl">Slovenian</option>
-  <option value="el">Greek</option>
-  <option value="sw">Swahili</option>
-  </select>
-    <button onClick={() => handleTranslate(blog.id, blog.blog)}>Translate</button>
-  </div>
                 </div>
-                
               ))
             ) : (
               <p>No blogs available</p>

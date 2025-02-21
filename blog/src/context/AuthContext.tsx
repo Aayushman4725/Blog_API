@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { login, logout, getProfile } from "../api"; // Make sure getProfile is available in your API
+import { login, logout, getProfile } from "../api"; // Ensure that getProfile is available in your API
 import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
@@ -7,10 +7,11 @@ interface AuthContextType {
   isAuthenticated: boolean;
   error: string | null;
   setError: (error: string | null) => void;
-  loginUser: (data: any) => Promise<void>;
+  loginUser: (data: any, navigate: Function) => Promise<void>;  // Updated to accept navigate
   logoutUser: () => void;
-  profile: any;  // Store the profile in context
+  profile: any;  // Store the profile in context 
   setProfile: (profile: any) => void;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,21 +41,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  const loginUser = async (data: any) => {
+  const loginUser = async (data: any, navigate: Function) => {  // Accepts data and navigate
     try {
-      const response = await login(data);
+      const response = await login(data);  // Assuming login function makes API call
       console.log("Login Response: ", response);
-      
+
       localStorage.setItem("access", response.data.token.access);
       localStorage.setItem("refresh", response.data.token.refresh);
       setUser(response.data);
       setIsAuthenticated(true);
 
       const profileResponse = await getProfile();
-      console.log("Profile Response: ", profileResponse);  // Log the profile response
+      console.log("Profile Response: ", profileResponse);
       setProfile(profileResponse);  // Set the profile in state
 
-      navigate("/dashboard");
+      navigate("/dashboard");  // Navigate after login
     } catch (error) {
       console.error("Login failed:", error);
       setError("Login failed");
@@ -62,7 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logoutUser = () => {
-    logout();
+    logout();  // Assuming logout function clears user-related data
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
     setUser(null);
@@ -73,7 +74,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, error, setError, loginUser, logoutUser, profile, setProfile }}>
+    <AuthContext.Provider value={{
+      user, 
+      isAuthenticated, 
+      error, 
+      setError, 
+      loginUser, 
+      logoutUser, 
+      profile, 
+      setProfile,
+      loading: false  // Can be used to indicate loading state if needed
+    }}>
       {children}
     </AuthContext.Provider>
   );

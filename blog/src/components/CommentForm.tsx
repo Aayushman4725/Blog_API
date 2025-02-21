@@ -1,54 +1,50 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";  // Assuming you have an AuthContext to get user info
+import { useAuth } from "../context/AuthContext"; // Assuming you have an AuthContext to get user info
 
 const CommentForm = ({ blogId }: { blogId: number }) => {
   const [commentInput, setCommentInput] = useState<string>("");
-  const { isAuthenticated, user } = useAuth(); // Get user and auth status from context
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
   const postComment = () => {
     if (!isAuthenticated) {
-      navigate("/login"); // Redirect to login if not authenticated
+      navigate("/login");
       return;
     }
 
-    // Get the token from localStorage or from the user object in context
     const token = localStorage.getItem("access") || user?.token;
 
     if (!token) {
-      navigate("/login"); // If no token, redirect to login
+      navigate("/login");
       return;
     }
 
-    // Send the comment to the API
     axios
       .post(
         `http://127.0.0.1:8000/api/blog/blogs/${blogId}/comments/`,
-        { text: commentInput }, // Payload for the comment
+        { comment_text: commentInput },
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+            Authorization: `Bearer ${token}`,
           },
         }
       )
-      .then((response) => {
-        setCommentInput(""); // Clear the comment input after successful post
-        fetchComments(blogId); // Optionally, reload the comments
+      .then(() => {
+        setCommentInput("");
+        fetchComments(blogId);
       })
       .catch((error) => {
         console.error("Error posting comment:", error);
-        if (error.response && error.response.status === 401) {
-          // Handle unauthorized error (e.g., token expired)
+        if (error.response?.status === 401) {
           console.log("Token expired or invalid. Please log in again.");
-          navigate("/login"); // Redirect to login
+          navigate("/login");
         }
       });
   };
 
   const fetchComments = (blogId: number) => {
-    // Fetch comments for the blog (you can implement this according to your app)
     console.log(`Fetching comments for blog ID: ${blogId}`);
   };
 
@@ -58,8 +54,15 @@ const CommentForm = ({ blogId }: { blogId: number }) => {
         value={commentInput}
         onChange={(e) => setCommentInput(e.target.value)}
         placeholder="Write your comment"
+        rows={4}
+        style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
       />
-      <button onClick={postComment}>Post Comment</button>
+      <button 
+        onClick={postComment} 
+        style={{ marginTop: "8px", padding: "8px 12px", borderRadius: "4px", backgroundColor: "#1abc9c", color: "white", border: "none", cursor: "pointer" }}
+      >
+        Post Comment
+      </button>
     </div>
   );
 };

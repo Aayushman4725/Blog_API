@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import "../BlogList.css"; // Import CSS file
+import "../styles/BlogList.css"; // Import CSS file
 import { useAuth } from "../context/AuthContext";
- // Icons for edit, delete, and create
- import { FaThumbsUp, FaComment, FaEdit, FaTrash, FaPlus, FaUserCircle } from "react-icons/fa";
+// Icons for edit, delete, and create
+import { FaThumbsUp, FaComment, FaEdit, FaTrash, FaPlus, FaUserCircle } from "react-icons/fa";
+
 // Define the User interface
 interface User {
   id: number;
-  // Add other fields if needed, e.g., username, email, etc.
 }
 
 // Define the Blog interface
@@ -17,7 +17,7 @@ interface Blog {
   id: number;
   title: string;
   blog: string;
-  translated_content:string;
+  translated_content: string;
   likes: number;
   user: User; // user is now an object of type User
 }
@@ -29,23 +29,23 @@ interface Comment {
 }
 
 const BlogList: React.FC = () => {
-  const { isAuthenticated, user, logoutUser } = useAuth();
+  const { isAuthenticated, user } = useAuth(); // Removed logoutUser
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [commentInputs, setCommentInputs] = useState<{ [key: number]: string }>({});
   const [commentsMap, setCommentsMap] = useState<{ [key: number]: Comment[] }>({});
   const [likesMap, setLikesMap] = useState<{ [key: number]: number }>({});
-  const [showCreateModal, setShowCreateModal] = useState(false); // State for create modal
-  const [showEditModal, setShowEditModal] = useState(false); // State for edit modal
-  const [currentBlog, setCurrentBlog] = useState<Blog | null>(null); // Current blog for editing
-  const [newBlogTitle, setNewBlogTitle] = useState(""); // New blog title
-  const [newBlogContent, setNewBlogContent] = useState(""); // New blog content
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [currentBlog, setCurrentBlog] = useState<Blog | null>(null);
+  const [newBlogTitle, setNewBlogTitle] = useState("");
+  const [newBlogContent, setNewBlogContent] = useState("");
   const navigate = useNavigate();
-  const [translatedContent, setTranslatedContent] = useState<{ [key: number]: string }>({}); // Store translated content for each blog
-const [selectedLanguage, setSelectedLanguage] = useState<{ [key: number]: string }>({}); // Store selected language for each blog
-const loggedInUserId = user?.id;
-  // Fetch blog list
+  const [translatedContent, setTranslatedContent] = useState<{ [key: number]: string }>({});
+  const [selectedLanguage, setSelectedLanguage] = useState<{ [key: number]: string }>({});
+  const loggedInUserId = user?.id;
+
   useEffect(() => {
     fetchBlogs();
   }, []);
@@ -61,7 +61,6 @@ const loggedInUserId = user?.id;
           return acc;
         }, {});
         setLikesMap(initialLikes);
-
         response.data.forEach((blog: Blog) => {
           fetchComments(blog.id);
         });
@@ -72,7 +71,6 @@ const loggedInUserId = user?.id;
       });
   };
 
-  // Fetch comments for a specific blog
   const fetchComments = (blogId: number) => {
     axios
       .get(`http://127.0.0.1:8000/api/blog/blogs/${blogId}/comments/`)
@@ -91,7 +89,6 @@ const loggedInUserId = user?.id;
       });
   };
 
-  // Post a comment for a specific blog
   const postComment = (blogId: number) => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -120,7 +117,7 @@ const loggedInUserId = user?.id;
           },
         }
       )
-      .then((response) => {
+      .then(() => {
         setCommentInputs((prev) => ({ ...prev, [blogId]: "" }));
         fetchComments(blogId);
       })
@@ -132,7 +129,6 @@ const loggedInUserId = user?.id;
       });
   };
 
-  // Handle like/unlike
   const handleLike = (blogId: number) => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -159,7 +155,6 @@ const loggedInUserId = user?.id;
       });
   };
 
-  // Handle blog creation
   const handleCreateBlog = () => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -189,7 +184,6 @@ const loggedInUserId = user?.id;
       });
   };
 
-  // Handle blog update
   const handleUpdateBlog = () => {
     if (!isAuthenticated || !currentBlog) {
       return;
@@ -218,7 +212,6 @@ const loggedInUserId = user?.id;
       });
   };
 
-  // Handle blog deletion
   const handleDeleteBlog = (blogId: number) => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -241,22 +234,22 @@ const loggedInUserId = user?.id;
       });
   };
 
-  const handleTranslate = async (blogId: number, text: string) => {
+  const handleTranslate = async (blogId: number) => {
     const language = selectedLanguage[blogId];
     if (!language) {
       alert("Please select a language.");
       return;
     }
-  
+
     try {
       const response = await axios.post(
-        `http://127.0.0.1:8000/api/blog/blogs/${blogId}/translate/`, // Include blog ID in the URL
+        `http://127.0.0.1:8000/api/blog/blogs/${blogId}/translate/`,
         { language }
       );
-  
+
       setTranslatedContent((prev) => ({
         ...prev,
-        [blogId]: response.data.translated_content, // Assuming the API returns { translated_text: "..." }
+        [blogId]: response.data.translated_content,
       }));
     } catch (error) {
       console.error("Error translating blog:", error);
@@ -269,7 +262,7 @@ const loggedInUserId = user?.id;
 
   return (
     <div className="blog-container">
-      <h1>Blog List</h1>
+      
       <button className="create-blog-button" onClick={() => setShowCreateModal(true)}>
         <FaPlus /> Create Blog
       </button>
@@ -283,124 +276,82 @@ const loggedInUserId = user?.id;
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-           <div className="blog-card">
-  {/* Header */}
-  <div className="blog-header">
-    <FaUserCircle size={24} />
-    <h2>
-      <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
-    </h2>
-  </div>
-
-  {/* Content */}
-  <div className="blog-content">
-    <p>{blog.blog}</p>
-    {translatedContent[blog.id] && (
-      <p>Translated content: {translatedContent[blog.id]}</p>
-    )}
-  </div>
-
-  {/* Actions */}
-  <div className="blog-actions">
-    <button className="like-button" onClick={() => handleLike(blog.id)}>
-      <FaThumbsUp /> {likesMap[blog.id] || blog.likes}
-    </button>
-    
-
-    {blog.user.id === loggedInUserId && (
-  <div className="blog-actions">
-    <button
-      onClick={() => {
-        setCurrentBlog(blog); // Set the current blog
-        setNewBlogTitle(blog.title); // Pre-populate the title
-        setNewBlogContent(blog.blog); // Pre-populate the content
-        setShowEditModal(true); // Open the modal
-      }}
-    >
-      <FaEdit /> Edit
-    </button>
-    <button onClick={() => handleDeleteBlog(blog.id)}>
-      <FaTrash /> Delete
-    </button>
-  </div>
-)}
-  </div>
-
-  {/* Translation Section */}
-  <div className="translation-section">
-    <select
-      value={selectedLanguage[blog.id] || ""}
-      onChange={(e) =>
-        setSelectedLanguage((prev) => ({
-          ...prev,
-          [blog.id]: e.target.value,
-        }))
-      }
-    >
-      <option value="">Select Language</option>
-
-  
-  <option value="de">German</option>
-  <option value="fr">French</option>
-  <option value="es">Spanish</option>
-  <option value="it">Italian</option>
-  <option value="zh-cn">Chinese (Simplified)</option>
-  <option value="ar">Arabic</option>
-  <option value="ru">Russian</option>
-  <option value="nl">Dutch</option>
-  <option value="hi">Hindi</option>
-  <option value="sv">Swedish</option>
-  <option value="da">Danish</option>
-  <option value="fi">Finnish</option>
-  <option value="cs">Czech</option>
-  <option value="he">Hebrew</option>
-  <option value="bg">Bulgarian</option>
-  <option value="uk">Ukrainian</option>
-  <option value="ro">Romanian</option>
-  <option value="id">Indonesian</option>
-  <option value="ms">Malay</option>
-  <option value="th">Thai</option>
-  <option value="vi">Vietnamese</option>
-  <option value="no">Norwegian</option>
-  <option value="hu">Hungarian</option>
-  <option value="lt">Lithuanian</option>
-  <option value="lv">Latvian</option>
-  <option value="et">Estonian</option>
-  <option value="sk">Slovak</option>
-  <option value="sl">Slovenian</option>
-  <option value="el">Greek</option>
-  <option value="sw">Swahili</option>
-  </select>
-    <button onClick={() => handleTranslate(blog.id, blog.blog)}>Translate</button>
-  </div>
-{/* Comments Section */}
-<div className="comment-section">
-    <h3><FaComment /> Comments:</h3>
-    <div className="comments-list">
-      {commentsMap[blog.id]?.map((comment) => (
-        <div key={comment.id} className="comment-card">
-          <p>{comment.comment_text}</p>
-          <small>{comment.created_at}</small>
-        </div>
-      ))}
-    </div>
-    <textarea
-      value={commentInputs[blog.id] || ""}
-      onChange={(e) =>
-        setCommentInputs((prev) => ({
-          ...prev,
-          [blog.id]: e.target.value,
-        }))
-      }
-      placeholder="Write your comment..."
-    ></textarea>
-    <button onClick={() => postComment(blog.id)}>
-      <FaComment /> Post Comment
-    </button>
-  </div>
-</div>
-
-
+              {/* Blog Card Content */}
+              <div className="blog-card">
+                <div className="blog-header">
+                  <FaUserCircle size={24} />
+                  <h2>
+                    <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+                  </h2>
+                </div>
+                <div className="blog-content">
+                  <p>{blog.blog}</p>
+                  {translatedContent[blog.id] && (
+                    <p>Translated content: {translatedContent[blog.id]}</p>
+                  )}
+                </div>
+                <div className="blog-actions">
+                  <button className="like-button" onClick={() => handleLike(blog.id)}>
+                    <FaThumbsUp /> {likesMap[blog.id] || blog.likes}
+                  </button>
+                  {blog.user.id === loggedInUserId && (
+                    <div className="blog-actions">
+                      <button
+                        onClick={() => {
+                          setCurrentBlog(blog);
+                          setNewBlogTitle(blog.title);
+                          setNewBlogContent(blog.blog);
+                          setShowEditModal(true);
+                        }}
+                      >
+                        <FaEdit /> Edit
+                      </button>
+                      <button onClick={() => handleDeleteBlog(blog.id)}>
+                        <FaTrash /> Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div className="translation-section">
+                  <select
+                    value={selectedLanguage[blog.id] || ""}
+                    onChange={(e) =>
+                      setSelectedLanguage((prev) => ({
+                        ...prev,
+                        [blog.id]: e.target.value,
+                      }))
+                    }
+                  >
+                    <option value="">Select Language</option>
+                    {/* Add language options here */}
+                  </select>
+                  <button onClick={() => handleTranslate(blog.id)}>Translate</button>
+                </div>
+                <div className="comment-section">
+                  <h3><FaComment /> Comments:</h3>
+                  <div className="comments-list">
+                    {commentsMap[blog.id]?.map((comment) => (
+                      <div key={comment.id} className="comment-card">
+                        <p>{comment.comment_text}</p>
+                        <small>{comment.created_at}</small>
+                      </div>
+                    ))}
+                  </div>
+                  <textarea
+                    value={commentInputs[blog.id] || ""}
+                    onChange={(e) =>
+                      setCommentInputs((prev) => ({
+                        ...prev,
+                        [blog.id]: e.target.value,
+                      }))
+                    }
+                    placeholder="Write your comment..."
+                  ></textarea>
+                  <button onClick={() => postComment(blog.id)}>
+                    <FaComment /> Post Comment
+                  </button>
+                </div>
+              </div>
             </motion.div>
           ))
         ) : (
@@ -408,54 +359,53 @@ const loggedInUserId = user?.id;
         )}
       </div>
 
-     {/* Create Blog Modal */}
-{showCreateModal && (
-  <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
-    <div className="modal" onClick={(e) => e.stopPropagation()}>
-      <h2>Create Blog</h2>
-      <input
-        type="text"
-        placeholder="Title"
-        value={newBlogTitle}
-        onChange={(e) => setNewBlogTitle(e.target.value)}
-      />
-      <textarea
-        placeholder="Content"
-        value={newBlogContent}
-        onChange={(e) => setNewBlogContent(e.target.value)}
-      ></textarea>
-      <div className="modal-buttons">
-        <button onClick={handleCreateBlog}>Create</button>
-        <button onClick={() => setShowCreateModal(false)}>Cancel</button>
-      </div>
-    </div>
-  </div>
-)}
+      {/* Create Blog Modal */}
+      {showCreateModal && (
+        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Create Blog</h2>
+            <input
+              type="text"
+              placeholder="Title"
+              value={newBlogTitle}
+              onChange={(e) => setNewBlogTitle(e.target.value)}
+            />
+            <textarea
+              placeholder="Content"
+              value={newBlogContent}
+              onChange={(e) => setNewBlogContent(e.target.value)}
+            ></textarea>
+            <div className="modal-buttons">
+              <button onClick={handleCreateBlog}>Create</button>
+              <button onClick={() => setShowCreateModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-{/* Edit Blog Modal */}
-{showEditModal && currentBlog && (
-  <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
-    <div className="modal" onClick={(e) => e.stopPropagation()}>
-      <h2>Edit Blog</h2>
-      <input
-        type="text"
-        placeholder="Title"
-        value={newBlogTitle}
-        onChange={(e) => setNewBlogTitle(e.target.value)}
-      />
-      <textarea
-        placeholder="Content"
-        value={newBlogContent}
-        onChange={(e) => setNewBlogContent(e.target.value)}
-      ></textarea>
-      <div className="modal-buttons">
-        <button onClick={handleUpdateBlog}>Update</button>
-        <button onClick={() => setShowEditModal(false)}>Cancel</button>
-      </div>
-    </div>
-  </div>
-)}
-    
+      {/* Edit Blog Modal */}
+      {showEditModal && currentBlog && (
+        <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Edit Blog</h2>
+            <input
+              type="text"
+              placeholder="Title"
+              value={newBlogTitle}
+              onChange={(e) => setNewBlogTitle(e.target.value)}
+            />
+            <textarea
+              placeholder="Content"
+              value={newBlogContent}
+              onChange={(e) => setNewBlogContent(e.target.value)}
+            ></textarea>
+            <div className="modal-buttons">
+              <button onClick={handleUpdateBlog}>Update</button>
+              <button onClick={() => setShowEditModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { FaEdit, FaTrash, FaThumbsUp, FaComment, FaUserCircle } from "react-icons/fa"; // Icons for edit, delete, like, and comment
-import "../BlogDetail.css"; // Import the updated CSS file
+import "../styles/BlogDetail.css"; // Import the updated CSS file
 
 interface Comment {
   id: number;
@@ -103,7 +103,7 @@ const BlogDetail: React.FC = () => {
     const token = localStorage.getItem("access") || user?.token;
 
     if (!commentInput.trim()) {
-      console.error("Comment cannot be empty");
+      alert("Please enter a valid comment.");
       return;
     }
 
@@ -286,7 +286,7 @@ const BlogDetail: React.FC = () => {
           </div>
         )}
 
-        {/* Comment Section */}
+        {/* Comment Section inside Blog Card */}
         <div className="comment-section">
           <h3><FaComment /> Comments:</h3>
           <div className="comments-list">
