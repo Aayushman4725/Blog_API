@@ -22,13 +22,11 @@ class SignupSerializer(serializers.ModelSerializer):
         return data
     
     def create(self, validated_data):
-        validated_data.pop('confirm password')
-        user = User.objects.create_user
-        (
-            username = validated_data['username'],
-            email = validated_data['email'],
-            password = vaidated_data['password'],
-
+        validated_data.pop('confirm_password')
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password'],
         )
         user.is_active = False
         user.save()
