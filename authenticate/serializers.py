@@ -31,3 +31,10 @@ class SignupSerializer(serializers.ModelSerializer):
         user.is_active = False
         user.save()
         return user
+    
+class LoginSerializer (serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only = True)
+
+    def valida
+
