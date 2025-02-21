@@ -16,7 +16,7 @@ class SignupSerializer(serializers.ModelSerializer):
         fields = ['username', 'email', 'password', 'confirm_password']
 
     def validate(self, data):
-        if data['password'] != data ['confirm_password']:
-            raise serializers.ValidationError({"password":"Passwords do not match."})
-        validate_password(data['password'])
+        if data['password'] != data['confirm_password']:
+            raise serializers.ValidationError({"password": "Passwords do not match."})
+        validate_password(data['password'])  # Validate password strength
         return data
