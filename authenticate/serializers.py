@@ -43,5 +43,11 @@ class LoginSerializer (serializers.Serializer):
         if not user.is_active:
             raise serializers.ValidationError({"detail": "Account is not activated."})
         return user
+    
+class ActivateSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    token = serializers.CharField()
+
+    
 
 
