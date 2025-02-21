@@ -3,6 +3,7 @@ from .views import *
 
 urlpatterns = [
     path('blog_list/', blog_list, name='blog_list'),
+    path('blog_list_user/user/', blog_list_user, name='blog_list_user'),
     path('blogs/<int:pk>/', blog_detail, name='blog_detail'),
     path('blogs/<int:pk>/comments/', CommentAPIView.as_view(), name='create_comment'),
     path('blogs/<int:pk>/like/', like_blog, name='like_blog'),
@@ -14,7 +15,7 @@ urlpatterns = [
     path('approve_comment/<int:pk>/', ApproveCommentAPIView.as_view(), name='approve_comment'),
     path('delete_comment/<int:pk>/', DeleteCommentAPIView.as_view(), name='delete_comment'),
     path('admin/review-comments/', AdminCommentReviewView.as_view(), name='admin_review_comments_api'),
-    path('blogs/comments/', CommentAPIView.as_view(), name='comment'),
+    path('blogs/<int:pk>/comments/', CommentAPIView.as_view(), name='comment'),
 
     
 ]
