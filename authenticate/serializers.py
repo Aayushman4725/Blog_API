@@ -58,5 +58,9 @@ class ActivateSerializer(serializers.Serializer):
         if not generate_token.check_token(user, data['token']):
             raise serializers.ValidationError({"detail": "Invalid activation token."})
     
+        user.is_active = True
+        user.save()
+        return user
+
 
 
