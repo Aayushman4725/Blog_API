@@ -1,124 +1,199 @@
-from django.shortcuts import redirect, render
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login ,logout
-from django.contrib import messages
-from django.conf import settings
-from django.core.mail import send_mail, EmailMessage
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny
+from django.contrib.auth import login, logout
 from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
-from django.urls import reverse_lazy
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
+from django.core.mail import send_mail, EmailMessage
+from django.conf import settings
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from .serializers import SignupSerializer, LoginSerializer, ActivateSerializer,ProfileUpdateSerializer
 from .tokens import generate_token
+from django.template.loader import render_to_string
+from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
-from django.contrib.auth.views import PasswordResetView
-from django.contrib.messages.views import SuccessMessageMixin
-from authenticate.models import Profile
+from .models import Profile
+from django.utils.encoding import force_str
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+from django.urls import reverse
+import logging
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+from django.http import HttpResponseRedirect
+from rest_framework.parsers import MultiPartParser, FormParser
+
+logger = logging.getLogger(__name__)
+
+
 User=get_user_model()
 
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
 
-def signup(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        email = request.POST['email']
-        password = request.POST['password']
-        confirm = request.POST['confirm-password']
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
 
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already exists!")
-            return redirect('sign_up')
+class SignupView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = SignupSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+
+            # Send activation email
+            current_site = get_current_site(request)  # You need to import get_current_site from django.contrib.sites.shortcuts
+            email_subject = "Activate your account for Blog App"
+            
+            # Generate activation link
+            activation_link = reverse('api_activate', kwargs={
+                'uidb64': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_token(user),
+            })
+            activation_url = f"http://{current_site.domain}{activation_link}"
+            
+            logger.info(f"Generated activation URL: {activation_url}")  # Log the URL for debugging
+
+            # Render the email content as HTML
+            message = render_to_string('email_confirmation.html', {
+                'name': user.username,
+                'activation_url': activation_url,
+            })
+            
+            # Create the email and set content type to HTML
+            email = EmailMessage(
+                email_subject,  # Subject
+                message,        # Message body (HTML content)
+                settings.EMAIL_HOST_USER,  # From email
+                [user.email],   # To email
+            )
+            email.content_subtype = 'html'  # Specify the content type as HTML
+            
+            # Send email and log success or failure
+            try:
+                email.send(fail_silently=False)
+                logger.info(f"Activation email sent to {user.email}")
+            except Exception as e:
+                logger.error(f"Failed to send activation email to {user.email}: {e}")
+            
+            return Response({"detail": "Account created. Please check your email to activate your account."}, status=status.HTTP_201_CREATED)
         
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email already exists!")
-            return redirect('sign_up')
-        
-        if password != confirm:
-            messages.error(request, "Passwords do not match!")
-            return redirect('sign_up')
-
-        myUser = User.objects.create_user(email, username, password)
-        myUser.is_active = False
-        myUser.save()
-
-        # Welcome Email
-        subject = "Welcome to Blog App!!"
-        message = f"Hello, {myUser.username}!!\nWelcome to Blog App!!"
-        from_email = settings.EMAIL_HOST_USER
-        to_list = [myUser.email]
-        send_mail(subject, message, from_email, to_list, fail_silently=True)
-
-        messages.success(request, "Your account has been successfully created! Please activate your account by clicking the link sent in your email.")
-
-        # Account activation email
-        current_site = get_current_site(request)
-        email_subject = "Activate your account for Blog App"
-        message2 = render_to_string('email_confirmation.html', {
-            'name': myUser.username,
-            'domain': current_site.domain,
-            'uid': urlsafe_base64_encode(force_bytes(myUser.pk)),
-            'token': generate_token.make_token(myUser)
-        })
-
-        email = EmailMessage(
-            email_subject,
-            message2,
-            settings.EMAIL_HOST_USER,
-            [myUser.email],
-        )
-        email.fail_silently = True
-        email.send()
-
-        return redirect('sign_in')  # Redirect to sign_in after signup
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    return render(request, 'signup.html')
+class LoginView(APIView):
+    permission_classes = [AllowAny]
 
-
-
-
-def sign_in(request):
-    if request.method == 'POST':
-        email = request.POST['email']
-        password = request.POST['password']  
-       
-        user = authenticate(email=email, password=password)
-
-        if user is not None:
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data
             login(request, user)
-            Profile.objects.get_or_create(user=user)        # after creating a model in blog app 
 
-            return redirect('blog')  # Redirect to 'blog' after successful login
+            # Debugging
+            print(f"User: {user}, is_staff: {user.is_staff}")
+
+            token = get_tokens_for_user(user)
+            Profile.objects.get_or_create(user=user)
+            return Response({
+                'token': token,
+                'is_admin': user.is_staff,
+                'id' : user.id,
+                'detail': "Logged in successfully."
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ActivateView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
+            logger.error(f"Activation link error: {e}")
+            return Response({"detail": "Invalid activation link."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if default_token_generator.check_token(user, token):
+            if user.is_active:
+                return Response({"detail": "Your account is already activated."}, status=status.HTTP_200_OK)
+
+            user.is_active = True
+            user.save()
+             # Redirect to the React dashboard page after successful activation
+            dashboard_url = "http://localhost:5173/home"  # Replace with your actual React app URL
+            return HttpResponseRedirect(dashboard_url)
         
-        else:
-            messages.error(request, "Invalid username or password. Please try again.")
-            return redirect('sign_in')
-    return render(request, 'login.html')   
-   
+        logger.warning(f"Token validation failed for user {user.username if user else 'unknown'}.")
+        return Response({"detail": "Invalid activation link."}, status=status.HTTP_400_BAD_REQUEST)
 
-def activate(request, uidb64, token):
-    try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        myUser = User.objects.get(pk=uid)  # Corrected from User.object to User.objects
-    
-    except (ValueError, TypeError, OverflowError, User.DoesNotExist):
-        myUser = None
-    
-    if myUser is not None and generate_token.check_token(myUser, token):
-        myUser.is_active = True
-        myUser.save()
-        login(request, myUser)
-        return redirect('home')  # Redirect to 'home' after successful activation
-    
-    else:
-        return render(request, 'activation_failed.html')
 
-def signout(request):
-    logout(request)
-    messages.success(request,("Successfully signed out"))
-    return redirect('blog')
+class LogoutView(APIView):
+    def post(self, request):
+        logout(request)
+        return Response({"detail": "Logged out successfully."}, status=status.HTTP_200_OK)
 
-class CustomPasswordResetView(SuccessMessageMixin,PasswordResetView):
-    template = 'password_reset_form.html'
-    email_template_name = 'password_reset_email.html'
-    subject_template_name = 'password_reset_subject.txt'
-    success_message = 'Please check your email for the password reset.'
-    success_url = reverse_lazy('blog')
+
+class PasswordResetView(APIView):
+    permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser]
+    @csrf_exempt
+    def post(self, request):
+        logger.info("Password reset post method triggered.")  # Log statement
+
+        email = request.data.get("email")
+        if not email:
+            return Response({"detail": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(email=email).first()
+        if not user:
+            return Response({"detail": "User with this email does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Generate reset token and UID
+        uid = urlsafe_base64_encode(str(user.pk).encode())
+        token = default_token_generator.make_token(user)
+
+        # Send reset password email
+        current_site = get_current_site(request)
+        email_subject = "Reset Your Password"
+        message = render_to_string('password_reset_email.html', {
+            'domain': current_site.domain,
+            'link': f"http://{current_site.domain}{reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})}",
+        })
+        email = EmailMessage(email_subject, message, settings.EMAIL_HOST_USER, [user.email])
+        email.send(fail_silently=True)
+        return Response({"detail": "Password reset link sent to your email."}, status=status.HTTP_200_OK)
+
+class ProfileUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        try:
+            profile = Profile.objects.get(user = request.user)
+            serializer = ProfileUpdateSerializer(profile)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except Profile.DoesNotExist:
+            return Response({'error': 'Profile does not exist'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def put(self, request):
+        try:
+            profile = Profile.objects.get(user = request.user)
+            serializer = ProfileUpdateSerializer(profile, data = request.data, partial = True)
+            
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+        
+        except Profile.DoesNotExist:
+            return Response({'error': 'Profile does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            
+            
+            
+    

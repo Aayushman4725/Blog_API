@@ -1,16 +1,20 @@
-from django.contrib import admin
-from django.urls import include, path
-from .views import CustomPasswordResetView
-from . import views
+from django.urls import path
+from rest_framework_simplejwt.views import TokenRefreshView
+from .views import SignupView, LoginView, ActivateView, LogoutView, PasswordResetView,ProfileUpdateView
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path('sign_in/', views.sign_in, name='sign_in'),
-    path('sign_up/',views.signup, name='sign_up'),
-    path('sign_out/',views.signout, name='sign_out'),
-    path('activate/<uidb64>/<token>',views.activate, name='activate'),
-    path('password-reset/', CustomPasswordResetView.as_view(), name='password_reset'),
-    path('password-reset-confirm/<uidb64>/<token>',auth_views.PasswordResetConfirmView.as_view(template_name= 'password_reset_confirm.html'), name='password_reset_confirm'),
-    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name = 'password_reset_complete.html'), name='password_reset_complete'),
+    path('signup/', SignupView.as_view(), name='api_signup'),
+    path('login/', LoginView.as_view(), name='api_login'),
+    path('activate/<str:uidb64>/<str:token>/', ActivateView.as_view(), name='api_activate'),
+    path('logout/', LogoutView.as_view(), name='api_logout'),
+    path('password-reset/', PasswordResetView.as_view(), name='api_password_reset'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path(
+        'reset/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'),
+        name='password_reset_confirm',
+    ),
+     path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+     path('profile/',ProfileUpdateView.as_view(), name='profile'),
 ]
-   
