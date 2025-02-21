@@ -197,3 +197,7 @@ class DeleteBlogAPIView(generics.DestroyAPIView):
 
     def get_queryset(self):
         return Blog.objects.filter(user=self.request.user)
+
+
+
+        .
