@@ -126,7 +126,7 @@ class ActivateView(APIView):
             user.is_active = True
             user.save()
              # Redirect to the React dashboard page after successful activation
-            dashboard_url = "http://localhost:5173/home"  # Replace with your actual React app URL
+            dashboard_url = "http://localhost:5173"  # Replace with your actual React app URL
             return HttpResponseRedirect(dashboard_url)
         
         logger.warning(f"Token validation failed for user {user.username if user else 'unknown'}.")

@@ -3,8 +3,6 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import "../styles/BlogList.css"; // Import CSS file
-import "../styles/CreateBlogModal.css";
-import "../styles/EditBlogModal.css";
 import { useAuth } from "../context/AuthContext";
 // Icons for edit, delete, and create
 import { FaThumbsUp, FaComment, FaEdit, FaTrash, FaPlus, FaUserCircle } from "react-icons/fa";
@@ -37,8 +35,12 @@ const BlogList: React.FC = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [commentInputs, setCommentInputs] = useState<{ [key: number]: string }>({});
-  const [commentsMap, setCommentsMap] = useState<{ [key: number]: Comment[] }>({});
+  const [commentInputs, setCommentInputs] = useState<{ [key: number]: string }>(
+    {}
+  );
+  const [commentsMap, setCommentsMap] = useState<{ [key: number]: Comment[] }>(
+    {}
+  );
   const [likesMap, setLikesMap] = useState<{ [key: number]: number }>({});
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -60,10 +62,13 @@ const BlogList: React.FC = () => {
       .then((response) => {
         setBlogs(response.data);
         setLoading(false);
-        const initialLikes = response.data.reduce((acc: { [key: number]: number }, blog: Blog) => {
-          acc[blog.id] = blog.likes;
-          return acc;
-        }, {});
+        const initialLikes = response.data.reduce(
+          (acc: { [key: number]: number }, blog: Blog) => {
+            acc[blog.id] = blog.likes;
+            return acc;
+          },
+          {}
+        );
         setLikesMap(initialLikes);
         response.data.forEach((blog: Blog) => {
           fetchComments(blog.id);
@@ -80,7 +85,9 @@ const BlogList: React.FC = () => {
       .get(`http://127.0.0.1:8000/api/blog/blogs/${blogId}/comments/`)
       .then((response) => {
         const latestComment = response.data.sort((a: Comment, b: Comment) => {
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
         })[0];
 
         setCommentsMap((prev) => ({
@@ -293,7 +300,11 @@ const BlogList: React.FC = () => {
                   <p>Posted by: {blog.user_name}</p>
                   <p>Posted {blog.created_at}</p>
                   {translatedContent[blog.id] && (
-                    <p>Translated content: {translatedContent[blog.id]}</p>
+                     <div className="translated-content">
+                     <h3>Translated Content:</h3>
+                     <p>{translatedContent[blog.id]}</p>
+                   </div>
+                    
                   )}
                 </div>
                 <div className="blog-actions">
