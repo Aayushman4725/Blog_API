@@ -196,14 +196,6 @@ const BlogDetail: React.FC = () => {
       });
   };
 
-  // Helper function to truncate blog content
-  const truncateContent = (content: string, limit: number) => {
-    if (content.length > limit) {
-      return content.substring(0, limit) + "...";
-    }
-    return content;
-  };
-
   if (!blog) {
     return <p>Loading...</p>;
   }
@@ -224,7 +216,7 @@ const BlogDetail: React.FC = () => {
 
         {/* Blog Content */}
         <div className="blog-content">
-          <p>{truncateContent(blog.blog, 200)}</p> {/* Limit content to 200 characters */}
+          <p>{blog.blog}</p>
           {translatedContent && (
             <div className="translated-content">
               <h3>Translated Content:</h3>
@@ -277,9 +269,9 @@ const BlogDetail: React.FC = () => {
         {/* Like Section */}
         <div className="like-section">
           <button onClick={handleLike}>
-            <FaThumbsUp /> Like
+            <FaThumbsUp /> 
           </button>
-          <p>{likes} Likes</p>
+          <p>{likes} </p>
         </div>
 
         {/* Edit and Delete Buttons (for blog owner) */}

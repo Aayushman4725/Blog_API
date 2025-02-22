@@ -61,6 +61,7 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 18px;
+  margin-bottom: 18px;
   text-align: left;
 }
 
@@ -70,12 +71,13 @@
   padding: 4px 8px; /* Smaller padding */
   border-radius: 4px; /* Smaller border-radius */
   cursor: pointer;
-  font-size: 0.8rem; /* Smaller font size */
+  font-size: 1rem; /* Smaller font size */
   display: flex;
-  align-items: center;
+  align-items: left;
   gap: 4px; /* Smaller gap */
   transition: transform 0.2s ease, background 0.3s ease;
   width: fit-content;
+
 }
 
 /* Create Blog Button */
@@ -135,7 +137,7 @@
 }
 
 .comment-section button {
-  background: #1abc9c;
+  background: #1a76bc;
   color: white;
   border: none;
   padding: 4px 8px; /* Smaller padding */

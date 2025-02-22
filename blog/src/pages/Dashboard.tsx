@@ -193,7 +193,12 @@ const Dashboard: React.FC = () => {
   if (loading) {
     return <p>Loading profile...</p>;
   }
-
+  const truncateText = (text: string, maxLength: number) => {
+    if (text.length <= maxLength) {
+      return text;
+    }
+    return text.substring(0, maxLength) + "...";
+  };
   return (
     <div className="dashboard-container">
       <div className="sidebar">
@@ -325,7 +330,7 @@ const Dashboard: React.FC = () => {
                     </h2>
                   </div>
                   <div className="blog-content">
-                    <p>{blog.blog}</p>
+                  <p>{truncateText(blog.blog, 100)}</p>
                     <p>Posted by: {blog.user_name}</p>
                     <p>Posted {blog.created_at}</p>
                     {translatedContent[blog.id] && (
