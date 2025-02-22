@@ -3,7 +3,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import "../styles/BlogList.css"; // Import CSS file
-
+import "../styles/BlogDetail.css"; // Import CSS file
 import { useAuth } from "../context/AuthContext";
 // Icons for edit, delete, and create
 import { FaThumbsUp, FaComment, FaEdit, FaTrash, FaPlus, FaUserCircle } from "react-icons/fa";
@@ -301,7 +301,11 @@ const BlogList: React.FC = () => {
                   <p>Posted by: {blog.user_name}</p>
                   <p>Posted {blog.created_at}</p>
                   {translatedContent[blog.id] && (
-                    <p>Translated content: {translatedContent[blog.id]}</p>
+                     <div className="translated-content">
+                     <h3>Translated Content:</h3>
+                     <p>{translatedContent[blog.id]}</p>
+                   </div>
+                    
                   )}
                 </div>
                 <div className="blog-actions">

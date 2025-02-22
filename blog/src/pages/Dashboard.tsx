@@ -4,11 +4,13 @@ import axios from "axios";
 import { FaEdit, FaTrash, FaPlus, FaUserCircle, FaSave } from "react-icons/fa";
 import "../styles/Dashboard.css";
 import { Link } from "react-router-dom";
-
+import "../styles/BlogDetail.css";
 interface Blog {
   id: number;
   title: string;
   blog: string;
+  user_name: string;
+  created_at: string;
 }
 
 interface Profile {
@@ -29,6 +31,12 @@ const Dashboard: React.FC = () => {
   const [newBlogTitle, setNewBlogTitle] = useState("");
   const [newBlogContent, setNewBlogContent] = useState("");
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<{
+    [key: number]: string;
+  }>({});
+  const [translatedContent, setTranslatedContent] = useState<{
+    [key: number]: string;
+  }>({});
   const [editedProfile, setEditedProfile] = useState({
     user: "",
     email: "",
@@ -154,6 +162,29 @@ const Dashboard: React.FC = () => {
       });
     }
   };
+
+  const handleTranslate = async (blogId: number, text: string) => {
+    const language = selectedLanguage[blogId];
+    if (!language) {
+      alert("Please select a language.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://127.0.0.1:8000/api/blog/blogs/${blogId}/translate/`,
+        { language }
+      );
+      setTranslatedContent((prev) => ({
+        ...prev,
+        [blogId]: response.data.translated_content,
+      }));
+    } catch (error) {
+      console.error("Error translating blog:", error);
+      alert("Translation failed. Please try again.");
+    }
+  };
+
 
   const profilePictureUrl = profile?.profile_picture
     ? `http://127.0.0.1:8000${profile.profile_picture}`
@@ -295,6 +326,14 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="blog-content">
                     <p>{blog.blog}</p>
+                    <p>Posted by: {blog.user_name}</p>
+                    <p>Posted {blog.created_at}</p>
+                    {translatedContent[blog.id] && (
+                      <div className="translated-content">
+                      <h3>Translated Content:</h3>
+                      <p> {translatedContent[blog.id]}</p>
+                      </div>
+                    )}
                   </div>
                   <div className="blog-actions">
                     <button
@@ -309,6 +348,53 @@ const Dashboard: React.FC = () => {
                     </button>
                     <button onClick={() => handleDeleteBlog(blog.id)}>
                       <FaTrash /> Delete
+                    </button>
+                  </div>
+                  {/* Translation Section */}
+                  <div className="translation-section">
+                    <select
+                      value={selectedLanguage[blog.id] || ""}
+                      onChange={(e) =>
+                        setSelectedLanguage((prev) => ({
+                          ...prev,
+                          [blog.id]: e.target.value,
+                        }))
+                      }
+                    >
+                      <option value="">Select Language</option>
+                      <option value="de">German</option>
+                      <option value="fr">French</option>
+                      <option value="es">Spanish</option>
+                      <option value="it">Italian</option>
+                      <option value="zh-cn">Chinese (Simplified)</option>
+                      <option value="ar">Arabic</option>
+                      <option value="ru">Russian</option>
+                      <option value="nl">Dutch</option>
+                      <option value="hi">Hindi</option>
+                      <option value="sv">Swedish</option>
+                      <option value="da">Danish</option>
+                      <option value="fi">Finnish</option>
+                      <option value="cs">Czech</option>
+                      <option value="he">Hebrew</option>
+                      <option value="bg">Bulgarian</option>
+                      <option value="uk">Ukrainian</option>
+                      <option value="ro">Romanian</option>
+                      <option value="id">Indonesian</option>
+                      <option value="ms">Malay</option>
+                      <option value="th">Thai</option>
+                      <option value="vi">Vietnamese</option>
+                      <option value="no">Norwegian</option>
+                      <option value="hu">Hungarian</option>
+                      <option value="lt">Lithuanian</option>
+                      <option value="lv">Latvian</option>
+                      <option value="et">Estonian</option>
+                      <option value="sk">Slovak</option>
+                      <option value="sl">Slovenian</option>
+                      <option value="el">Greek</option>
+                      <option value="sw">Swahili</option>
+                    </select>
+                    <button onClick={() => handleTranslate(blog.id, blog.blog)}>
+                      Translate
                     </button>
                   </div>
                 </div>
