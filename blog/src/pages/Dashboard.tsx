@@ -288,7 +288,7 @@ const Dashboard = () => {
                           })
                         }
                       />
-                      </label>
+                    </label>
                     <label>
                       Phone Number:
                       <input
@@ -367,7 +367,10 @@ const Dashboard = () => {
                     <p>Posted by: {blog.user_name}</p>
                     <p>Posted {blog.created_at}</p>
                     {translatedContent[blog.id] && (
-                      <p>Translated content: {translatedContent[blog.id]}</p>
+                      <div className="translated-content">
+                        <h3>Translated content:</h3>
+                        <p>{translatedContent[blog.id]}</p>
+                      </div>
                     )}
                   </div>
                   <div className="blog-actions">
