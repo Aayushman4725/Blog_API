@@ -21,6 +21,7 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 18px;
+  width: fit-content;
 }
 
 .blog-header h2 {
@@ -51,6 +52,7 @@
   color: #333;
   line-height: 1.8;
   margin: 0;
+  text-align: left;
 }
 
 /* Blog Actions */
@@ -59,6 +61,7 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 18px;
+  text-align: left;
 }
 
 .blog-actions button {
@@ -72,18 +75,40 @@
   align-items: center;
   gap: 4px; /* Smaller gap */
   transition: transform 0.2s ease, background 0.3s ease;
+  width: fit-content;
+}
+
+/* Create Blog Button */
+.create-blog-button {
+  background-color: #178fd4; /* blue for Create Blog */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  font-size: 20px;
+  cursor: pointer;
+  align-items: center;
+  margin-bottom: 30px;
+  margin-top: 30px;
+  transition: background-color 0.3s ease;
+  width: fit-content;
+}
+
+.create-blog-button:hover {
+  background-color: #0a6393; /* Darker blue on hover */
 }
 
 /* Comment Section */
 .comment-section {
-  display: flex;
+  
   flex-direction: column;
   gap: 12px;
+  text-align: left;
 }
 
 .comment-input {
   order: -1;
-  display: flex;
+
   flex-direction: column;
   gap: 8px;
 }
@@ -101,10 +126,11 @@
   font-size: 0.9rem;
   resize: vertical;
   transition: border-color 0.3s ease-in-out;
+  text-align: left;
 }
 
 .comment-section textarea:focus {
-  border-color: #1abc9c;
+  border-color: #1aaebc;
   outline: none;
 }
 
@@ -117,10 +143,11 @@
   cursor: pointer;
   font-size: 0.8rem; /* Smaller font size */
   transition: background-color 0.3s ease-in-out;
+  width: fit-content;
 }
 
 .comment-section button:hover {
-  background: #16a085;
+  background: #1679a0;
 }
 
 /* Modal Enhancements */
@@ -140,6 +167,7 @@
   border: 1px solid #ddd;
   font-size: 0.9rem;
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  text-align: left;
 }
 
 .modal input:focus,

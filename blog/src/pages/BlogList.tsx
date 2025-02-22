@@ -20,8 +20,8 @@ interface Blog {
   translated_content: string;
   likes: number;
   user: User; // user is now an object of type User
-  user_name: string;
-  created_at: string;
+  user_name:string;
+  created_at:string;
 }
 
 interface Comment {
@@ -31,7 +31,7 @@ interface Comment {
 }
 
 const BlogList: React.FC = () => {
-  const { isAuthenticated, user, logoutUser } = useAuth();
+  const { isAuthenticated, user,profile } = useAuth(); // Removed logoutUser
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -44,10 +44,10 @@ const BlogList: React.FC = () => {
   const [newBlogTitle, setNewBlogTitle] = useState("");
   const [newBlogContent, setNewBlogContent] = useState("");
   const navigate = useNavigate();
-  const [translatedContent, setTranslatedContent] = useState<{ [key: number]: string }>({}); // Store translated content for each blog
-const [selectedLanguage, setSelectedLanguage] = useState<{ [key: number]: string }>({}); // Store selected language for each blog
-const loggedInUserId = user?.id;
-  // Fetch blog list
+  const [translatedContent, setTranslatedContent] = useState<{ [key: number]: string }>({});
+  const [selectedLanguage, setSelectedLanguage] = useState<{ [key: number]: string }>({});
+  const loggedInUserId = user?.id;
+
   useEffect(() => {
     fetchBlogs();
   }, []);
@@ -172,7 +172,6 @@ const loggedInUserId = user?.id;
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
         }
       )
@@ -267,7 +266,7 @@ const loggedInUserId = user?.id;
     <div className="blog-container">
       
       <button className="create-blog-button" onClick={() => setShowCreateModal(true)}>
-        <FaPlus /> Create Blog
+        <FaPlus /> Write Blog
       </button>
       <div className="blog-list">
         {blogs.length > 0 ? (
@@ -279,124 +278,114 @@ const loggedInUserId = user?.id;
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-           <div className="blog-card">
-  {/* Header */}
-  <div className="blog-header">
-    <FaUserCircle size={24} />
-    <h2>
-      <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
-    </h2>
-  </div>
+              {/* Blog Card Content */}
+              <div className="blog-card">
+                <div className="blog-header">
+                  <FaUserCircle size={24} />
+                  <h2>
+                    <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+                  </h2>
+                </div>
+                <div className="blog-content">
+                  <p>{blog.blog}</p>
+                  <p>Posted by: {blog.user_name}</p>
+                  <p>Posted {blog.created_at}</p>
+                  {translatedContent[blog.id] && (
+                    <p>Translated content: {translatedContent[blog.id]}</p>
+                  )}
+                </div>
+                <div className="blog-actions">
+                  <button className="like-button" onClick={() => handleLike(blog.id)}>
+                    <FaThumbsUp /> {likesMap[blog.id] || blog.likes}
+                  </button>
+                  {profile && profile.userId && blog.user == profile.userId && (
+                    <div className="blog-actions">
+                      <button
+                        onClick={() => {
+                          setCurrentBlog(blog); // Set the current blog
+                          setNewBlogTitle(blog.title); // Pre-populate the title
+                          setNewBlogContent(blog.blog); // Pre-populate the content
+                          setShowEditModal(true); // Open the modal
+                        }}
+                      >
+                        <FaEdit /> Edit
+                      </button>
+                      <button onClick={() => handleDeleteBlog(blog.id)}>
+                        <FaTrash /> Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div className="translation-section">
+            <select
+                  value={selectedLanguage[blog.id] || ""}
+                  onChange={(e) =>
+                    setSelectedLanguage((prev) => ({
+                      ...prev,
+                      [blog.id]: e.target.value,
+                    }))
+                  }
+                >
+                  <option value="">Select Language</option>
+            <option value="de">German</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <option value="it">Italian</option>
+            <option value="zh-cn">Chinese (Simplified)</option>
+            <option value="ar">Arabic</option>
+            <option value="ru">Russian</option>
+            <option value="nl">Dutch</option>
+            <option value="hi">Hindi</option>
+            <option value="sv">Swedish</option>
+            <option value="da">Danish</option>
+            <option value="fi">Finnish</option>
+            <option value="cs">Czech</option>
+            <option value="he">Hebrew</option>
+            <option value="bg">Bulgarian</option>
+            <option value="uk">Ukrainian</option>
+            <option value="ro">Romanian</option>
+            <option value="id">Indonesian</option>
+            <option value="ms">Malay</option>
+            <option value="th">Thai</option>
+            <option value="vi">Vietnamese</option>
+            <option value="no">Norwegian</option>
+            <option value="hu">Hungarian</option>
+            <option value="lt">Lithuanian</option>
+            <option value="lv">Latvian</option>
+            <option value="et">Estonian</option>
+            <option value="sk">Slovak</option>
+            <option value="sl">Slovenian</option>
+            <option value="el">Greek</option>
+            <option value="sw">Swahili</option>
+                </select>
+                <button onClick={() => handleTranslate(blog.id)}>Translate</button>
+              </div>
 
-  {/* Content */}
-  <div className="blog-content">
-    <p>{blog.blog}</p>
-    {translatedContent[blog.id] && (
-      <p>Translated content: {translatedContent[blog.id]}</p>
-    )}
-  </div>
-
-  {/* Actions */}
-  <div className="blog-actions">
-    <button className="like-button" onClick={() => handleLike(blog.id)}>
-      <FaThumbsUp /> {likesMap[blog.id] || blog.likes}
-    </button>
-    
-
-    {blog.user.id === loggedInUserId && (
-  <div className="blog-actions">
-    <button
-      onClick={() => {
-        setCurrentBlog(blog); // Set the current blog
-        setNewBlogTitle(blog.title); // Pre-populate the title
-        setNewBlogContent(blog.blog); // Pre-populate the content
-        setShowEditModal(true); // Open the modal
-      }}
-    >
-      <FaEdit /> Edit
-    </button>
-    <button onClick={() => handleDeleteBlog(blog.id)}>
-      <FaTrash /> Delete
-    </button>
-  </div>
-)}
-  </div>
-
-  {/* Translation Section */}
-  <div className="translation-section">
-    <select
-      value={selectedLanguage[blog.id] || ""}
-      onChange={(e) =>
-        setSelectedLanguage((prev) => ({
-          ...prev,
-          [blog.id]: e.target.value,
-        }))
-      }
-    >
-      <option value="">Select Language</option>
-
-  
-  <option value="de">German</option>
-  <option value="fr">French</option>
-  <option value="es">Spanish</option>
-  <option value="it">Italian</option>
-  <option value="zh-cn">Chinese (Simplified)</option>
-  <option value="ar">Arabic</option>
-  <option value="ru">Russian</option>
-  <option value="nl">Dutch</option>
-  <option value="hi">Hindi</option>
-  <option value="sv">Swedish</option>
-  <option value="da">Danish</option>
-  <option value="fi">Finnish</option>
-  <option value="cs">Czech</option>
-  <option value="he">Hebrew</option>
-  <option value="bg">Bulgarian</option>
-  <option value="uk">Ukrainian</option>
-  <option value="ro">Romanian</option>
-  <option value="id">Indonesian</option>
-  <option value="ms">Malay</option>
-  <option value="th">Thai</option>
-  <option value="vi">Vietnamese</option>
-  <option value="no">Norwegian</option>
-  <option value="hu">Hungarian</option>
-  <option value="lt">Lithuanian</option>
-  <option value="lv">Latvian</option>
-  <option value="et">Estonian</option>
-  <option value="sk">Slovak</option>
-  <option value="sl">Slovenian</option>
-  <option value="el">Greek</option>
-  <option value="sw">Swahili</option>
-  </select>
-    <button onClick={() => handleTranslate(blog.id, blog.blog)}>Translate</button>
-  </div>
-{/* Comments Section */}
-<div className="comment-section">
-    <h3><FaComment /> Comments:</h3>
-    <div className="comments-list">
-      {commentsMap[blog.id]?.map((comment) => (
-        <div key={comment.id} className="comment-card">
-          <p>{comment.comment_text}</p>
-          <small>{comment.created_at}</small>
-        </div>
-      ))}
-    </div>
-    <textarea
-      value={commentInputs[blog.id] || ""}
-      onChange={(e) =>
-        setCommentInputs((prev) => ({
-          ...prev,
-          [blog.id]: e.target.value,
-        }))
-      }
-      placeholder="Write your comment..."
-    ></textarea>
-    <button onClick={() => postComment(blog.id)}>
-      <FaComment /> Post Comment
-    </button>
-  </div>
-</div>
-
-
+                <div className="comment-section">
+                  <h3><FaComment /> Comments:</h3>
+                  <div className="comments-list">
+                    {commentsMap[blog.id]?.map((comment) => (
+                      <div key={comment.id} className="comment-card">
+                        <p>{comment.comment_text}</p>
+                        <small>{comment.created_at}</small>
+                      </div>
+                    ))}
+                  </div>
+                  <textarea
+                    value={commentInputs[blog.id] || ""}
+                    onChange={(e) =>
+                      setCommentInputs((prev) => ({
+                        ...prev,
+                        [blog.id]: e.target.value,
+                      }))
+                    }
+                    placeholder="Write your comment..."
+                  ></textarea>
+                  <button onClick={() => postComment(blog.id)}>
+                    <FaComment /> Post Comment
+                  </button>
+                </div>
+              </div>
             </motion.div>
           ))
         ) : (
@@ -404,29 +393,29 @@ const loggedInUserId = user?.id;
         )}
       </div>
 
-     {/* Create Blog Modal */}
-{showCreateModal && (
-  <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
-    <div className="modal" onClick={(e) => e.stopPropagation()}>
-      <h2>Create Blog</h2>
-      <input
-        type="text"
-        placeholder="Title"
-        value={newBlogTitle}
-        onChange={(e) => setNewBlogTitle(e.target.value)}
-      />
-      <textarea
-        placeholder="Content"
-        value={newBlogContent}
-        onChange={(e) => setNewBlogContent(e.target.value)}
-      ></textarea>
-      <div className="modal-buttons">
-        <button onClick={handleCreateBlog}>Create</button>
-        <button onClick={() => setShowCreateModal(false)}>Cancel</button>
-      </div>
-    </div>
-  </div>
-)}
+      {/* Create Blog Modal */}
+      {showCreateModal && (
+        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Create Blog</h2>
+            <input
+              type="text"
+              placeholder="Title"
+              value={newBlogTitle}
+              onChange={(e) => setNewBlogTitle(e.target.value)}
+            />
+            <textarea
+              placeholder="Content"
+              value={newBlogContent}
+              onChange={(e) => setNewBlogContent(e.target.value)}
+            ></textarea>
+            <div className="modal-buttons">
+              <button onClick={handleCreateBlog}>Create</button>
+              <button onClick={() => setShowCreateModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Blog Modal */}
       {showEditModal && currentBlog && (

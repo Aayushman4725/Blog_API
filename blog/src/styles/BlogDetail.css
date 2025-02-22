@@ -1,85 +1,94 @@
+/* Improved User-Centric and Reliable Blog Styling */
+
 .blog-detail-container {
   max-width: 800px;
   margin: 20px auto;
   padding: 20px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: #00d9f17b;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease-in-out;
+  text-align: left;
 }
 
 .blog-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 24px;
 }
 
 .blog-header h1 {
-  font-size: 2rem;
+  font-size: 2.2rem;
   color: #2c3e50;
+  font-weight: 700;
 }
 
 .blog-content {
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: 1.1rem;
+  line-height: 1.8;
   color: #34495e;
   margin-bottom: 24px;
   text-align: justify;
 }
 
 .translated-content {
-  background: #f9f9f9;
-  padding: 15px;
-  border-radius: 8px;
-  margin-top: 20px;
+  background: #f7f7f7;
+  padding: 18px;
+  border-radius: 10px;
+  margin-top: 24px;
 }
 
 .translated-content h3 {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: #2c3e50;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
-.translation-section,
-.like-section,
-.blog-actions {
+.translation-section {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 24px;
 }
 
 .translation-section select {
-  padding: 8px;
-  border-radius: 5px;
+  padding: 10px;
+  border-radius: 6px;
   border: 1px solid #ddd;
   font-size: 1rem;
+  width: fit-content;
+
 }
 
 .translation-section button {
-  padding: 8px 16px;
-  border-radius: 5px;
+ 
+  border-radius: 6px;
   border: none;
-  font-size: var(--font-size-base);
+  background-color: #3498db;
+  color: white;
   cursor: pointer;
   transition: background-color 0.3s ease;
   padding: 6px 12px;
+  width: fit-content;
+  
 }
 
-.translation-section select {
-  border: 1px solid #ddd;
+.translation-section button:hover {
+  background-color: #2980b9;
 }
 
 .like-section {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 24px;
+  width: fit-content;
 }
 
 .like-section button {
-  padding: 8px 16px;
-  border-radius: 5px;
+  padding: 10px 18px;
+  border-radius: 6px;
   border: none;
   background-color: #3498db;
   color: white;
@@ -87,33 +96,10 @@
   transition: background-color 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
 }
 
 .like-section button:hover {
-  background-color: #2980b9;
-}
-
-.blog-actions {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.blog-actions button {
-  padding: 8px 16px;
-  border-radius: 5px;
-  border: none;
-  background-color: #3498db;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.blog-actions button:hover {
   background-color: #2980b9;
 }
 
@@ -125,32 +111,15 @@
 }
 
 .comment-section h3 {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   color: #2c3e50;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .comment-input {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-unit);
-}
-
-.comment-card {
-  background: #f9f9f9;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.comment-card p {
-  font-size: 0.95rem;
-  color: #555;
-}
-
-.comment-card small {
-  font-size: 0.8rem;
-  color: #888;
+  gap: 10px;
 }
 
 textarea {
@@ -159,24 +128,49 @@ textarea {
   border-radius: 6px;
   border: 1px solid #ddd;
   font-size: 1rem;
-  margin-bottom: 10px;
+  resize: vertical;
 }
 
 .comment-section button {
-  padding: 8px 16px;
-  border-radius: 5px;
+  padding: 8px 14px;
+  border-radius: 6px;
   border: none;
   background-color: #3498db;
   color: white;
   cursor: pointer;
+  font-size: 0.9rem;
   transition: background-color 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  width: fit-content;
 }
 
 .comment-section button:hover {
   background-color: #2980b9;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: left;
+}
+
+.comment-card {
+  background: #f9f9f9;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  text-align: left;
+}
+
+.comment-card p {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.comment-card small {
+  font-size: 0.75rem;
+  color: #888;
 }
 
 .modal-overlay {
@@ -194,17 +188,17 @@ textarea {
 
 .modal {
   background: white;
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 24px;
   width: 90%;
   max-width: 500px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .modal h2 {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   color: #2c3e50;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .modal input,
@@ -214,7 +208,7 @@ textarea {
   border-radius: 6px;
   border: 1px solid #ddd;
   font-size: 1rem;
-  margin-bottom: 15px;
+  margin-bottom: 18px;
 }
 
 .modal textarea {
@@ -225,7 +219,7 @@ textarea {
 .modal-buttons {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 12px;
 }
 
 .modal-buttons button {
@@ -233,12 +227,12 @@ textarea {
   border-radius: 6px;
   border: none;
   cursor: pointer;
-  font-size: var(--font-size-base);
+  font-size: 1rem;
   transition: background-color 0.3s ease;
 }
 
 .modal-buttons button:first-child {
-  background-color: var(--color-primary);
+  background-color: #3498db;
   color: white;
 }
 
@@ -247,7 +241,7 @@ textarea {
 }
 
 .modal-buttons button:last-child {
-  background-color: var(--color-danger);
+  background-color: #e74c3c;
   color: white;
 }
 

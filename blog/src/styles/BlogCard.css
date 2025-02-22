@@ -6,6 +6,7 @@
     margin: 16px 0;
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    
   }
   
   .blog-header {
@@ -20,6 +21,8 @@
   
   .blog-content {
     margin: 12px 0;
+    
+   
   }
   
   .blog-actions {
