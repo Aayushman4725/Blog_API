@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { FaEdit, FaTrash, FaThumbsUp, FaComment, FaUserCircle } from "react-icons/fa"; // Icons for edit, delete, like, and comment
-import "../BlogDetail.css"; // Import the updated CSS file
+import "../styles/BlogDetail.css"; // Import the updated CSS file
 
 interface Comment {
   id: number;
@@ -17,14 +17,13 @@ interface Blog {
   title: string;
   blog: string;
   likes: number;
-  user: number;
-  user_name : string;
-  created_at: string;
-
+  user: {
+    id: number;
+  };
 }
 
 const BlogDetail: React.FC = () => {
-  const { isAuthenticated, user,profile } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { blogId } = useParams<{ blogId: string }>();
   const [blog, setBlog] = useState<Blog | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -48,19 +47,10 @@ const BlogDetail: React.FC = () => {
     axios
       .get(`http://127.0.0.1:8000/api/blog/blogs/${blogId}/`)
       .then((response) => {
-        const blogData = response.data;
-      setBlog(blogData);
-      setLikes(blogData.likes);
-      setEditTitle(blogData.title);
-      setEditContent(blogData.blog);
-      const blogOwnerId = blogData.user;  // This will be 21 as per your response
-
-      console.log("Blog owner id:", blogOwnerId, "Blog owner name:",  blogData.created_at); // Here, the owner ID is logged
-
-      // If the logged-in user is the owner, you can enable editing options, etc.
-      if (blogOwnerId === user?.id) {
-        console.log("This blog was written by the current user.");
-      }
+        setBlog(response.data);
+        setLikes(response.data.likes);
+        setEditTitle(response.data.title);
+        setEditContent(response.data.blog);
       })
       .catch((error) => {
         console.error("Error fetching blog details:", error);
@@ -113,7 +103,7 @@ const BlogDetail: React.FC = () => {
     const token = localStorage.getItem("access") || user?.token;
 
     if (!commentInput.trim()) {
-      console.error("Comment cannot be empty");
+      alert("Please enter a valid comment.");
       return;
     }
 
@@ -227,8 +217,6 @@ const BlogDetail: React.FC = () => {
         {/* Blog Content */}
         <div className="blog-content">
           <p>{blog.blog}</p>
-          <p>Posted by: {blog.user_name}</p>
-          <p>Posted {blog.created_at}</p>
           {translatedContent && (
             <div className="translated-content">
               <h3>Translated Content:</h3>
@@ -287,7 +275,7 @@ const BlogDetail: React.FC = () => {
         </div>
 
         {/* Edit and Delete Buttons (for blog owner) */}
-        {profile && profile.userId && blog.user == profile.userId &&  (
+        {blog.user.id === user?.id && (
           <div className="blog-actions">
             <button onClick={() => setShowEditModal(true)}>
               <FaEdit /> Edit
@@ -298,7 +286,7 @@ const BlogDetail: React.FC = () => {
           </div>
         )}
 
-        {/* Comment Section */}
+        {/* Comment Section inside Blog Card */}
         <div className="comment-section">
           <h3><FaComment /> Comments:</h3>
           <div className="comments-list">

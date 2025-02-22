@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { signup } from "../api"; // Import the signup function from api.ts
 import { AxiosError } from 'axios';
+import '../styles/signup.css';
+
 const Signup = () => {
   // States for email, password, username, and error message
   const [username, setUsername] = useState("");

@@ -2,22 +2,15 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import "../BlogList.css"; // Import CSS file
-import "../BlogDetail.css";
+import "../styles/BlogList.css"; // Import CSS file
+
 import { useAuth } from "../context/AuthContext";
 // Icons for edit, delete, and create
-import {
-  FaThumbsUp,
-  FaComment,
-  FaEdit,
-  FaTrash,
-  FaPlus,
-  FaUserCircle,
-} from "react-icons/fa";
+import { FaThumbsUp, FaComment, FaEdit, FaTrash, FaPlus, FaUserCircle } from "react-icons/fa";
+
 // Define the User interface
 interface User {
   id: number;
-  // Add other fields if needed, e.g., username, email, etc.
 }
 
 // Define the Blog interface
@@ -28,8 +21,8 @@ interface Blog {
   translated_content: string;
   likes: number;
   user: User; // user is now an object of type User
-  user_name: string;
-  created_at: string;
+  user_name:string;
+  created_at:string;
 }
 
 interface Comment {
@@ -39,7 +32,7 @@ interface Comment {
 }
 
 const BlogList: React.FC = () => {
-  const { isAuthenticated, user, profile, logoutUser } = useAuth();
+  const { isAuthenticated, user,profile } = useAuth(); // Removed logoutUser
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -50,20 +43,16 @@ const BlogList: React.FC = () => {
     {}
   );
   const [likesMap, setLikesMap] = useState<{ [key: number]: number }>({});
-  const [showCreateModal, setShowCreateModal] = useState(false); // State for create modal
-  const [showEditModal, setShowEditModal] = useState(false); // State for edit modal
-  const [currentBlog, setCurrentBlog] = useState<Blog | null>(null); // Current blog for editing
-  const [newBlogTitle, setNewBlogTitle] = useState(""); // New blog title
-  const [newBlogContent, setNewBlogContent] = useState(""); // New blog content
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [currentBlog, setCurrentBlog] = useState<Blog | null>(null);
+  const [newBlogTitle, setNewBlogTitle] = useState("");
+  const [newBlogContent, setNewBlogContent] = useState("");
   const navigate = useNavigate();
-  const [translatedContent, setTranslatedContent] = useState<{
-    [key: number]: string;
-  }>({}); // Store translated content for each blog
-  const [selectedLanguage, setSelectedLanguage] = useState<{
-    [key: number]: string;
-  }>({}); // Store selected language for each blog
+  const [translatedContent, setTranslatedContent] = useState<{ [key: number]: string }>({});
+  const [selectedLanguage, setSelectedLanguage] = useState<{ [key: number]: string }>({});
+  const loggedInUserId = user?.id;
 
-  // Fetch blog list
   useEffect(() => {
     fetchBlogs();
   }, []);
@@ -82,7 +71,6 @@ const BlogList: React.FC = () => {
           {}
         );
         setLikesMap(initialLikes);
-
         response.data.forEach((blog: Blog) => {
           fetchComments(blog.id);
         });
@@ -93,7 +81,6 @@ const BlogList: React.FC = () => {
       });
   };
 
-  // Fetch comments for a specific blog
   const fetchComments = (blogId: number) => {
     axios
       .get(`http://127.0.0.1:8000/api/blog/blogs/${blogId}/comments/`)
@@ -114,7 +101,6 @@ const BlogList: React.FC = () => {
       });
   };
 
-  // Post a comment for a specific blog
   const postComment = (blogId: number) => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -143,7 +129,7 @@ const BlogList: React.FC = () => {
           },
         }
       )
-      .then((response) => {
+      .then(() => {
         setCommentInputs((prev) => ({ ...prev, [blogId]: "" }));
         fetchComments(blogId);
       })
@@ -155,7 +141,6 @@ const BlogList: React.FC = () => {
       });
   };
 
-  // Handle like/unlike
   const handleLike = (blogId: number) => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -182,7 +167,6 @@ const BlogList: React.FC = () => {
       });
   };
 
-  // Handle blog creation
   const handleCreateBlog = () => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -198,7 +182,6 @@ const BlogList: React.FC = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
         }
       )
@@ -213,7 +196,6 @@ const BlogList: React.FC = () => {
       });
   };
 
-  // Handle blog update
   const handleUpdateBlog = () => {
     if (!isAuthenticated || !currentBlog) {
       return;
@@ -242,7 +224,6 @@ const BlogList: React.FC = () => {
       });
   };
 
-  // Handle blog deletion
   const handleDeleteBlog = (blogId: number) => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -265,7 +246,7 @@ const BlogList: React.FC = () => {
       });
   };
 
-  const handleTranslate = async (blogId: number, text: string) => {
+  const handleTranslate = async (blogId: number) => {
     const language = selectedLanguage[blogId];
     if (!language) {
       alert("Please select a language.");
@@ -274,13 +255,13 @@ const BlogList: React.FC = () => {
 
     try {
       const response = await axios.post(
-        `http://127.0.0.1:8000/api/blog/blogs/${blogId}/translate/`, // Include blog ID in the URL
+        `http://127.0.0.1:8000/api/blog/blogs/${blogId}/translate/`,
         { language }
       );
 
       setTranslatedContent((prev) => ({
         ...prev,
-        [blogId]: response.data.translated_content, // Assuming the API returns { translated_text: "..." }
+        [blogId]: response.data.translated_content,
       }));
     } catch (error) {
       console.error("Error translating blog:", error);
@@ -293,12 +274,9 @@ const BlogList: React.FC = () => {
 
   return (
     <div className="blog-container">
-      <h1>Blog List</h1>
-      <button
-        className="create-blog-button"
-        onClick={() => setShowCreateModal(true)}
-      >
-        <FaPlus /> Create Blog
+      
+      <button className="create-blog-button" onClick={() => setShowCreateModal(true)}>
+        <FaPlus /> Write Blog
       </button>
       <div className="blog-list">
         {blogs.length > 0 ? (
@@ -310,37 +288,26 @@ const BlogList: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
+              {/* Blog Card Content */}
               <div className="blog-card">
-                {/* Header */}
                 <div className="blog-header">
                   <FaUserCircle size={24} />
                   <h2>
                     <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
                   </h2>
                 </div>
-
-                {/* Content */}
                 <div className="blog-content">
                   <p>{blog.blog}</p>
                   <p>Posted by: {blog.user_name}</p>
                   <p>Posted {blog.created_at}</p>
                   {translatedContent[blog.id] && (
-                    <div className="translated-content">
-                      <h3>Translated content:</h3>
-                      <p>{translatedContent[blog.id]}</p>
-                    </div>
+                    <p>Translated content: {translatedContent[blog.id]}</p>
                   )}
                 </div>
-
-                {/* Actions */}
                 <div className="blog-actions">
-                  <button
-                    className="like-button"
-                    onClick={() => handleLike(blog.id)}
-                  >
+                  <button className="like-button" onClick={() => handleLike(blog.id)}>
                     <FaThumbsUp /> {likesMap[blog.id] || blog.likes}
                   </button>
-
                   {profile && profile.userId && blog.user == profile.userId && (
                     <div className="blog-actions">
                       <button
@@ -359,60 +326,53 @@ const BlogList: React.FC = () => {
                     </div>
                   )}
                 </div>
-
-                {/* Translation Section */}
                 <div className="translation-section">
-                  <select
-                    value={selectedLanguage[blog.id] || ""}
-                    onChange={(e) =>
-                      setSelectedLanguage((prev) => ({
-                        ...prev,
-                        [blog.id]: e.target.value,
-                      }))
-                    }
-                  >
-                    <option value="">Select Language</option>
+            <select
+                  value={selectedLanguage[blog.id] || ""}
+                  onChange={(e) =>
+                    setSelectedLanguage((prev) => ({
+                      ...prev,
+                      [blog.id]: e.target.value,
+                    }))
+                  }
+                >
+                  <option value="">Select Language</option>
+            <option value="de">German</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <option value="it">Italian</option>
+            <option value="zh-cn">Chinese (Simplified)</option>
+            <option value="ar">Arabic</option>
+            <option value="ru">Russian</option>
+            <option value="nl">Dutch</option>
+            <option value="hi">Hindi</option>
+            <option value="sv">Swedish</option>
+            <option value="da">Danish</option>
+            <option value="fi">Finnish</option>
+            <option value="cs">Czech</option>
+            <option value="he">Hebrew</option>
+            <option value="bg">Bulgarian</option>
+            <option value="uk">Ukrainian</option>
+            <option value="ro">Romanian</option>
+            <option value="id">Indonesian</option>
+            <option value="ms">Malay</option>
+            <option value="th">Thai</option>
+            <option value="vi">Vietnamese</option>
+            <option value="no">Norwegian</option>
+            <option value="hu">Hungarian</option>
+            <option value="lt">Lithuanian</option>
+            <option value="lv">Latvian</option>
+            <option value="et">Estonian</option>
+            <option value="sk">Slovak</option>
+            <option value="sl">Slovenian</option>
+            <option value="el">Greek</option>
+            <option value="sw">Swahili</option>
+                </select>
+                <button onClick={() => handleTranslate(blog.id)}>Translate</button>
+              </div>
 
-                    <option value="de">German</option>
-                    <option value="fr">French</option>
-                    <option value="es">Spanish</option>
-                    <option value="it">Italian</option>
-                    <option value="zh-cn">Chinese (Simplified)</option>
-                    <option value="ar">Arabic</option>
-                    <option value="ru">Russian</option>
-                    <option value="nl">Dutch</option>
-                    <option value="hi">Hindi</option>
-                    <option value="sv">Swedish</option>
-                    <option value="da">Danish</option>
-                    <option value="fi">Finnish</option>
-                    <option value="cs">Czech</option>
-                    <option value="he">Hebrew</option>
-                    <option value="bg">Bulgarian</option>
-                    <option value="uk">Ukrainian</option>
-                    <option value="ro">Romanian</option>
-                    <option value="id">Indonesian</option>
-                    <option value="ms">Malay</option>
-                    <option value="th">Thai</option>
-                    <option value="vi">Vietnamese</option>
-                    <option value="no">Norwegian</option>
-                    <option value="hu">Hungarian</option>
-                    <option value="lt">Lithuanian</option>
-                    <option value="lv">Latvian</option>
-                    <option value="et">Estonian</option>
-                    <option value="sk">Slovak</option>
-                    <option value="sl">Slovenian</option>
-                    <option value="el">Greek</option>
-                    <option value="sw">Swahili</option>
-                  </select>
-                  <button onClick={() => handleTranslate(blog.id, blog.blog)}>
-                    Translate
-                  </button>
-                </div>
-                {/* Comments Section */}
                 <div className="comment-section">
-                  <h3>
-                    <FaComment /> Comments:
-                  </h3>
+                  <h3><FaComment /> Comments:</h3>
                   <div className="comments-list">
                     {commentsMap[blog.id]?.map((comment) => (
                       <div key={comment.id} className="comment-card">
@@ -445,10 +405,7 @@ const BlogList: React.FC = () => {
 
       {/* Create Blog Modal */}
       {showCreateModal && (
-        <div
-          className="modal-overlay"
-          onClick={() => setShowCreateModal(false)}
-        >
+        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Create Blog</h2>
             <input
@@ -461,7 +418,6 @@ const BlogList: React.FC = () => {
               placeholder="Content"
               value={newBlogContent}
               onChange={(e) => setNewBlogContent(e.target.value)}
-              maxLength={5000} // Ensure this matches the backend limit
             ></textarea>
             <div className="modal-buttons">
               <button onClick={handleCreateBlog}>Create</button>

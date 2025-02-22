@@ -1,4 +1,5 @@
-import { Routes, Route, Link } from "react-router-dom";
+// src/App.tsx
+import { Routes, Route } from "react-router-dom";
 import Signup from "./pages/Signup";
 import ActivateAccount from "./pages/ActivateAccount";
 import Login from "./pages/Login";
@@ -6,11 +7,12 @@ import Dashboard from "./pages/Dashboard";
 import BlogList from "./pages/BlogList";
 import AdminCommentReview from "./pages/AdminCommentReview";
 import BlogDetail from "./pages/BlogDetail";
-import "./App.css";
+import "./styles/App.css";
+import NavBar from "./components/NavBar"; // Import the NavBar component
 import { useAuth } from "./context/AuthContext";
 
 function App() {
-  const { profile, isAuthenticated } = useAuth(); // Get user profile
+  const { profile } = useAuth(); // Get user profile
 
   // ✅ Show loading state if profile is not yet available
   if (profile === undefined) {
@@ -19,27 +21,7 @@ function App() {
 
   return (
     <div className="app-container">
-      <h1>Welcome to My App</h1>
-      <nav>
-        <ul>
-          <li><Link to="/">Home</Link></li>
-          {isAuthenticated && (
-            <>
-          <li><Link to="/dashboard">Profile</Link></li>
-          </>
-          )}
-          {!isAuthenticated && (
-            <>
-              <li><Link to="/signup">Signup</Link></li>
-              <li><Link to="/login">Login</Link></li>
-            </>
-          )}
-          {/* <li><Link to="/blogs">Blogs</Link></li> */}
-          {profile?.is_admin && (
-            <li><Link to="/admin/review-comments">Comment Review</Link></li>
-          )}
-        </ul>
-      </nav>
+      <NavBar /> {/* Use the NavBar component */}
 
       <Routes>
         <Route path="/" element={<BlogList />} />
