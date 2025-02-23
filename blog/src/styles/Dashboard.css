@@ -61,11 +61,10 @@
   margin-top: 20px;
 }
 .profile-info .user-info {
-  background: #f9f9f9; /* Light background for user info */
+  background:white; /* Light background for user info */
   padding: 15px;
-  border-radius: 10px;
+  /* border-radius: 10px; */
   text-align: left; /* Align text to the left */
-  color: #2980b9;
 }
 
 .profile-info img {
@@ -74,6 +73,11 @@
   border-radius: 50%;
   object-fit: cover;
   margin-bottom: 20px;
+  transition: transform 0.3s ease;
+}
+
+.profile-info img:hover {
+  transform: scale(1.1);
 }
 
 .profile-header {
@@ -82,6 +86,35 @@
   align-items: center;
 
 }
+
+/* Profile Details */
+.profile-details {
+  background:white;
+  padding: 10px;
+  border-radius: 10px;
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+  margin-top: 10px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.profile-details p {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  color: #34495e;
+  margin: 10px 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+
 
 /* Blog Section */
 .blog-section {
@@ -230,6 +263,13 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px; /* Add some space below the header */
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 .edit-profile-button {

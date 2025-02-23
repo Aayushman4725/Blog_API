@@ -5,8 +5,8 @@ import { FaEdit, FaTrash, FaPlus, FaUserCircle, FaSave } from "react-icons/fa";
 import "../styles/Dashboard.css";
 import { Link } from "react-router-dom";
 import "../styles/BlogDetail.css";
-import "../styles/CreateBlogModal.css"
-import "../styles/EditBlogModal.css"
+import "../styles/CreateBlogModal.css";
+import "../styles/EditBlogModal.css";
 interface Blog {
   id: number;
   title: string;
@@ -25,7 +25,9 @@ interface Profile {
 
 const Dashboard: React.FC = () => {
   const { profile, logoutUser, loading, user, updateProfile } = useAuth();
-  const [activeSection, setActiveSection] = useState<"profile" | "blog">("profile");
+  const [activeSection, setActiveSection] = useState<"profile" | "blog">(
+    "profile"
+  );
   const [userBlogs, setUserBlogs] = useState<Blog[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -47,15 +49,31 @@ const Dashboard: React.FC = () => {
     profile_picture: null as File | null,
   });
 
+  // Initialize editedProfile when profile data is available
+  useEffect(() => {
+    if (profile) {
+      setEditedProfile({
+        user: profile.user || "",
+        email: profile.email || "",
+        phone_number: profile.phone_number || "",
+        about: profile.about || "",
+        profile_picture: null, // Initialize profile_picture as null
+      });
+    }
+  }, [profile]);
+
   const fetchUserBlogs = useCallback(async () => {
     const token = localStorage.getItem("access") || user?.token;
 
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/blog/blog_list_user/user/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        "http://127.0.0.1:8000/api/blog/blog_list_user/user/",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setUserBlogs(response.data);
     } catch (error) {
       console.error("Error fetching user blogs:", error);
@@ -156,7 +174,9 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfilePictureChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (e.target.files && e.target.files[0]) {
       setEditedProfile({
         ...editedProfile,
@@ -187,7 +207,6 @@ const Dashboard: React.FC = () => {
     }
   };
 
-
   const profilePictureUrl = profile?.profile_picture
     ? `http://127.0.0.1:8000${profile.profile_picture}`
     : "media/images/profile_picture/default-avatar.jpg";
@@ -205,13 +224,17 @@ const Dashboard: React.FC = () => {
     <div className="dashboard-container">
       <div className="sidebar">
         <button
-          className={`sidebar-button ${activeSection === "profile" ? "active" : ""}`}
+          className={`sidebar-button ${
+            activeSection === "profile" ? "active" : ""
+          }`}
           onClick={() => setActiveSection("profile")}
         >
           Profile
         </button>
         <button
-          className={`sidebar-button ${activeSection === "blog" ? "active" : ""}`}
+          className={`sidebar-button ${
+            activeSection === "blog" ? "active" : ""
+          }`}
           onClick={() => setActiveSection("blog")}
         >
           Blog
@@ -245,6 +268,7 @@ const Dashboard: React.FC = () => {
                 />
                 {isEditingProfile ? (
                   <form
+                    className="user-info"
                     onSubmit={(e) => {
                       e.preventDefault();
                       handleProfileUpdate();
@@ -302,10 +326,16 @@ const Dashboard: React.FC = () => {
                   </form>
                 ) : (
                   <>
-                    <p>Name: {profile.user || "N/A"}</p>
-                    <p>Email: {profile.email || "N/A"}</p>
-                    <p>Phone Number: {profile.phone_number || "Not provided"}</p>
-                    <p>About: {profile.about || "No information available"}</p>
+                    <div className="profile-details">
+                      <p>Name: {profile.user || "N/A"}</p>
+                      <p>Email: {profile.email || "N/A"}</p>
+                      <p>
+                        Phone Number: {profile.phone_number || "Not provided"}
+                      </p>
+                      <p>
+                        About: {profile.about || "No information available"}
+                      </p>
+                    </div>
                   </>
                 )}
               </div>
@@ -319,7 +349,10 @@ const Dashboard: React.FC = () => {
         ) : (
           <div className="blog-section">
             <h1>Your Blogs</h1>
-            <button className="create-blog-button" onClick={() => setShowCreateModal(true)}>
+            <button
+              className="create-blog-button"
+              onClick={() => setShowCreateModal(true)}
+            >
               <FaPlus /> Create Blog
             </button>
             {userBlogs.length > 0 ? (
@@ -332,13 +365,13 @@ const Dashboard: React.FC = () => {
                     </h2>
                   </div>
                   <div className="blog-content">
-                  <p>{truncateText(blog.blog, 100)}</p>
+                    <p>{truncateText(blog.blog, 100)}</p>
                     <p>Posted by: {blog.user_name}</p>
                     <p>Posted {blog.created_at}</p>
                     {translatedContent[blog.id] && (
                       <div className="translated-content">
-                      <h3>Translated Content:</h3>
-                      <p> {translatedContent[blog.id]}</p>
+                        <h3>Translated Content:</h3>
+                        <p> {translatedContent[blog.id]}</p>
                       </div>
                     )}
                   </div>
@@ -414,7 +447,10 @@ const Dashboard: React.FC = () => {
       </div>
 
       {showCreateModal && (
-        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+        <div
+          className="modal-overlay"
+          onClick={() => setShowCreateModal(false)}
+        >
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Create Blog</h2>
             <input
