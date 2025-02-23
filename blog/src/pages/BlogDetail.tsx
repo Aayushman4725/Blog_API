@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { FaEdit, FaTrash, FaThumbsUp, FaComment, FaUserCircle } from "react-icons/fa"; // Icons for edit, delete, like, and comment
 import "../styles/BlogDetail.css"; // Import the updated CSS file
+import "../styles/CreateBlogModal.css"
+import "../styles/EditBlogModal.css"
 
 interface Comment {
   id: number;

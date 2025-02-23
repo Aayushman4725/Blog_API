@@ -56,7 +56,8 @@ const BlogCard: React.FC<BlogCardProps> = ({
         </h2>
       </div>
       <div className="blog-content">
-        <p>{translatedContent || blog.blog}</p> {/* Show translated content if available, otherwise show the original blog content */}
+        <p>{translatedContent || blog.blog}</p>{" "}
+        {/* Show translated content if available, otherwise show the original blog content */}
       </div>
       <div className="blog-actions">
         <button className="like-button" onClick={() => handleLike(blog.id)}>

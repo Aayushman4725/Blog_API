@@ -8,6 +8,9 @@ import { useAuth } from "../context/AuthContext";
 // Icons for edit, delete, and create
 import { FaThumbsUp, FaComment, FaEdit, FaTrash, FaPlus, FaUserCircle } from "react-icons/fa";
 
+import "../styles/CreateBlogModal.css"
+import "../styles/EditBlogModal.css"
+
 // Define the User interface
 interface User {
   id: number;
