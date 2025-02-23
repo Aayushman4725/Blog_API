@@ -30,6 +30,14 @@ interface BlogCardProps {
   setSelectedLanguage: (language: string) => void; // Function to update the selected language
 }
 
+// Helper function to truncate blog content
+const truncateContent = (content: string, limit: number) => {
+  if (content.length > limit) {
+    return content.substring(0, limit) + "...";
+  }
+  return content;
+};
+
 const BlogCard: React.FC<BlogCardProps> = ({
   blog,
   loggedInUserId,
@@ -56,8 +64,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
         </h2>
       </div>
       <div className="blog-content">
-        <p>{translatedContent || blog.blog}</p>{" "}
-        {/* Show translated content if available, otherwise show the original blog content */}
+        <p>{translatedContent ? truncateContent(translatedContent, 200) : truncateContent(blog.blog, 200)}</p> {/* Limit content to 200 characters */}
       </div>
       <div className="blog-actions">
         <button className="like-button" onClick={() => handleLike(blog.id)}>

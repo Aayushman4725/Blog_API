@@ -3,7 +3,6 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import "../styles/BlogList.css"; // Import CSS file
-import "../styles/BlogDetail.css"; // Import CSS file
 import { useAuth } from "../context/AuthContext";
 // Icons for edit, delete, and create
 import { FaThumbsUp, FaComment, FaEdit, FaTrash, FaPlus, FaUserCircle } from "react-icons/fa";

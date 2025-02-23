@@ -195,14 +195,12 @@ const Dashboard: React.FC = () => {
   if (loading) {
     return <p>Loading profile...</p>;
   }
-
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) {
       return text;
     }
     return text.substring(0, maxLength) + "...";
   };
-
   return (
     <div className="dashboard-container">
       <div className="sidebar">

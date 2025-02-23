@@ -271,9 +271,9 @@ const BlogDetail: React.FC = () => {
         {/* Like Section */}
         <div className="like-section">
           <button onClick={handleLike}>
-            <FaThumbsUp /> Like
+            <FaThumbsUp /> 
           </button>
-          <p>{likes} Likes</p>
+          <p>{likes} </p>
         </div>
 
         {/* Edit and Delete Buttons (for blog owner) */}
