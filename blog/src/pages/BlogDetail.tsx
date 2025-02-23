@@ -25,7 +25,7 @@ interface Blog {
 }
 
 const BlogDetail: React.FC = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user,profile } = useAuth();
   const { blogId } = useParams<{ blogId: string }>();
   const [blog, setBlog] = useState<Blog | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -277,7 +277,7 @@ const BlogDetail: React.FC = () => {
         </div>
 
         {/* Edit and Delete Buttons (for blog owner) */}
-        {blog.user.id === user?.id && (
+        {profile && profile.userId && blog.user == profile.userId &&(
           <div className="blog-actions">
             <button onClick={() => setShowEditModal(true)}>
               <FaEdit /> Edit
