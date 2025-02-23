@@ -3,7 +3,7 @@
   max-width: 800px;
   margin: 20px auto;
   padding: 20px;
-  background: #00d9f17b;
+  background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-family: 'Poppins', sans-serif;
@@ -96,6 +96,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  width: fit-content;
 }
 
 .like-section button:hover {
@@ -245,5 +246,5 @@ textarea {
 }
 
 .modal-buttons button:last-child:hover {
-  background-color: #c0392b;
+  background-color: #1462df;
 }
